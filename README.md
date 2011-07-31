@@ -4,7 +4,7 @@ sparks.js
 
 This project attempts to create a simple, fast and fun particles engine in Javascript.
 
-It currently supports three.js canvas particles.
+It currently supports [three.js](https://github.com/mrdoob/three.js) canvas particles and using [tween.js](https://github.com/sole/tween.js/) internally.
 
 Proof of Concept Demo
 
