@@ -76,8 +76,11 @@ SPARKS.Emitter.prototype = {
             particle = this._particles[i];
             if ( particle.isDead )
             {
-                this._particles.splice( i, 1 );
+                //particle = 
+				this._particles.splice( i, 1 );
                 this.dispatchEvent("dead", particle);
+				SPARKS.VectorPool.release(particle.position); //
+				SPARKS.VectorPool.release(particle.velocity);
                 
             } else {
                 this.dispatchEvent("updated", particle);
@@ -173,8 +176,8 @@ SPARKS.Particle = function() {
      * For 3D
      */
      
-     this.position = new THREE.Vector3( 0, 0, 0 );
-     this.velocity = new THREE.Vector3( 0, 0, 0 );
+     this.position = SPARKS.VectorPool.get().set(0,0,0); //new THREE.Vector3( 0, 0, 0 );
+     this.velocity = SPARKS.VectorPool.get().set(0,0,0); //new THREE.Vector3( 0, 0, 0 );
      // rotation vec3
      // angVelocity vec3
      // faceAxis vec3
@@ -302,13 +305,15 @@ SPARKS.SphereCapZone.prototype.getLocation = function() {
     var theta = Math.PI *2  * SPARKS.Utils.random();
     var r = SPARKS.Utils.random();
     
-    //Vec3DPool
-    var v =  new THREE.Vector3(r * Math.cos(theta), -1 / Math.tan(this.angle * SPARKS.Utils.DEGREE_TO_RADIAN), r * Math.sin(theta));
+    //new THREE.Vector3
+    var v =  SPARKS.VectorPool.get().set(r * Math.cos(theta), -1 / Math.tan(this.angle * SPARKS.Utils.DEGREE_TO_RADIAN), r * Math.sin(theta));
     
     //v.length = StardustMath.interpolate(0, _minRadius, 1, _maxRadius, Math.random());
             
     var i = this.minr - ((this.minr-this.maxr) *  Math.random() );
     v.multiplyScalar(i);
+
+	v.__markedForReleased = true;
     
     return v;
 };
@@ -350,6 +355,11 @@ SPARKS.Velocity = function(zone) {
 SPARKS.Velocity.prototype.initialize = function( emitter/*Emitter*/, particle/*Particle*/ ) {
     var pos = this.zone.getLocation();
     particle.velocity.set(pos.x, pos.y, pos.z);
+	if (pos.__markedForReleased) {
+		//console.log("release");
+		SPARKS.VectorPool.release(pos);
+		pos.__markedForReleased = false;
+	}
 };
 
 SPARKS.Target = function(target, callback) {
@@ -366,6 +376,42 @@ SPARKS.Target.prototype.initialize = function( emitter, particle) {
     }
 
 };
+
+
+SPARKS.VectorPool = {
+	__pools: [],
+
+	// Get a new Vector
+	get: function() {
+		if (this.__pools.length>0) {
+			return this.__pools.pop();
+		}
+		
+		return this._addToPool();
+		
+	},
+	
+	// Release a vector back into the pool
+	release: function(v) {
+		this.__pools.push(v);
+	},
+	
+	// Create a bunch of vectors and add to the pool
+	_addToPool: function() {
+		console.log("creating some pools");
+		
+		for (var i=0, size = 100; i < size; i++) {
+			this.__pools.push(new THREE.Vector3());
+		}
+		
+		return new THREE.Vector3();
+		
+	}
+	
+	
+	
+};
+
 
 /********************************
 * Util Classes

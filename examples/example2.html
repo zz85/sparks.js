@@ -25,7 +25,9 @@
 		
 		<script type="text/javascript" src="http://sole.github.com/tween.js/src/Tween.js"></script>
 		<script type="text/javascript" src="https://raw.github.com/zz85/sparks.js/master/Sparks.js"></script>
-
+		<!--
+			<script type="text/javascript" src="../Sparks.js"></script>
+		-->
 		<script type="text/javascript">
 			// Inspired from http://wonderfl.net/c/qTwn and mr doob three.js examples
 
@@ -152,7 +154,6 @@
 				var onParticleDead = function(particle) {
 					particle.target.visible = false; // is this a work around?
 					group.removeChild(particle.target); 
-					
 				};
 				
 				
