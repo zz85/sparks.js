@@ -398,7 +398,7 @@ SPARKS.VectorPool = {
 	
 	// Create a bunch of vectors and add to the pool
 	_addToPool: function() {
-		console.log("creating some pools");
+		//console.log("creating some pools");
 		
 		for (var i=0, size = 100; i < size; i++) {
 			this.__pools.push(new THREE.Vector3());
