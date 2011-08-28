@@ -46,13 +46,16 @@ SPARKS.Emitter.prototype = {
 	start: function() {
 		this._lastTime = Date.now();
 		this._timer = setTimeout(this.step, this._timerStep, this);
-		console.log(this._timer);
 		this._isRunning = true;
 	},
 	
 	stop: function() {
 		this._isRunning = false;
 		clearTimeout(this._timer);
+	},
+	
+	isRunning: function() {
+		return this._isRunning & true;
 	},
 	
 	// Step gets called upon by the engine
@@ -285,13 +288,14 @@ SPARKS.Move.prototype.update = function(emitter, particle, time) {
 
 
 SPARKS.Accelerate = function(x,y,z) {
-    // init to x,y,z = a
-    y = y || x;
-    z = z || y;
+	
+	if (x instanceof THREE.Vector3) {
+		this.acceleration = x;
+		return;
+	}
+
     this.acceleration = new THREE.Vector3(x,y,z);
     
-    //this.acceleration = acceleration ? acceleration : new THREE.Vector3();
-    // if number instead of array, 
 };
 
 SPARKS.Accelerate.prototype.update = function(emitter, particle, time) {
@@ -305,6 +309,27 @@ SPARKS.Accelerate.prototype.update = function(emitter, particle, time) {
 
 };
 
+/* Set the max ammount of x,y,z drift movements in a second */
+SPARKS.RandomDrift = function(x,y,z) {
+	if (x instanceof THREE.Vector3) {
+		this.drift = x;
+		return;
+	}
+
+    this.drift = new THREE.Vector3(x,y,z);
+}
+
+
+SPARKS.RandomDrift.prototype.update = function(emitter, particle, time) {
+    var drift = this.drift;
+    
+    var v = particle.velocity;
+    
+    v.x += ( Math.random() - 0.5 ) * drift.x * time;
+    v.y += ( Math.random() - 0.5 ) * drift.y * time;
+    v.z += ( Math.random() - 0.5 ) * drift.z * time;
+
+};
 
 /********************************
 * Zone Classes
@@ -315,13 +340,7 @@ SPARKS.Accelerate.prototype.update = function(emitter, particle, time) {
 SPARKS.Zone = function() {
 };
 
-SPARKS.PointZone = function(pos) {
-    this.pos = pos;
-};
-
-SPARKS.PointZone.prototype.getLocation = function() {
-    return this.pos;
-};
+// TODO, contains() for Zone
 
 SPARKS.PointZone = function(pos) {
     this.pos = pos;
@@ -330,6 +349,94 @@ SPARKS.PointZone = function(pos) {
 SPARKS.PointZone.prototype.getLocation = function() {
     return this.pos;
 };
+
+SPARKS.PointZone = function(pos) {
+    this.pos = pos;
+};
+
+SPARKS.PointZone.prototype.getLocation = function() {
+    return this.pos;
+};
+
+SPARKS.LineZone = function(start, end) {
+    this.start = start;
+	this.end = end;
+	this._length = end.clone().subSelf( start );
+};
+
+SPARKS.LineZone.prototype.getLocation = function() {
+    var len = this._length.clone();
+
+	len.multiplyScalar( Math.random() );
+	return len.addSelf( this.start );
+	
+};
+
+// Basically a RectangleZone
+
+
+SPARKS.ParallelogramZone = function(corner, side1, side2) {
+    this.corner = corner;
+	this.side1 = side1;
+	this.side2 = side2;
+};
+
+SPARKS.ParallelogramZone.prototype.getLocation = function() {
+    
+	var d1 = this.side1.clone().multiplyScalar( Math.random() );
+	var d2 = this.side2.clone().multiplyScalar( Math.random() );
+	d1.addSelf(d2);
+	return d1.addSelf( this.corner );
+	
+};
+
+
+/**
+ * The constructor creates a DiscZone 3D zone.
+ * 
+ * @param centre The point at the center of the disc.
+ * @param normal A vector normal to the disc.
+ * @param outerRadius The outer radius of the disc.
+ * @param innerRadius The inner radius of the disc. This defines the hole 
+ * in the center of the disc. If set to zero, there is no hole. 
+ */
+
+/*
+// BUGGY!!
+SPARKS.DiscZone = function(center, radiusNormal, outerRadius, innerRadius) {
+    this.center = center;
+	this.radiusNormal = radiusNormal;
+	this.outerRadius = (outerRadius==undefined) ? 0 : outerRadius;
+	this.innerRadius = (innerRadius==undefined) ? 0 : innerRadius;
+	
+};
+
+SPARKS.DiscZone.prototype.getLocation = function() {
+    var rand = Math.random();
+	var _innerRadius = this.innerRadius;
+	var _outerRadius = this.outerRadius;
+	var center = this.center;
+	var _normal = this.radiusNormal;
+	
+	_distToOrigin = _normal.dot( center );
+	
+	var radius = _innerRadius + (1 - rand * rand ) * ( _outerRadius - _innerRadius );
+	var angle = Math.random() * SPARKS.Utils.TWOPI;
+	
+	var _distToOrigin = _normal.dot( center );
+	var axes = SPARKS.Utils.getPerpendiculars( _normal.clone() );
+	var _planeAxis1 = axes[0];
+	var _planeAxis2 = axes[1];
+	
+	var p = _planeAxis1.clone();
+	p.multiplyScalar( radius * Math.cos( angle ) );
+	var p2 = _planeAxis2.clone();
+	p2.multiplyScalar( radius * Math.sin( angle ) );
+	p.addSelf( p2 );
+	return _center.add( p );
+	
+};
+*/
 
 SPARKS.SphereCapZone = function(x, y, z, minr, maxr, angle) {
     this.x = x;
@@ -416,6 +523,11 @@ SPARKS.Target.prototype.initialize = function( emitter, particle) {
 
 };
 
+/********************************
+* VectorPool 
+*
+*  Reuse much of Vectors if possible
+*********************************/
 
 SPARKS.VectorPool = {
 	__pools: [],
@@ -462,5 +574,27 @@ SPARKS.Utils = {
     random: function() {
         return Math.random();
     },
-    DEGREE_TO_RADIAN: Math.PI / 180 
+    DEGREE_TO_RADIAN: Math.PI / 180,
+	TWOPI: Math.PI * 2,
+
+	getPerpendiculars: function(normal) {
+		var p1 = this.getPerpendicular( normal );
+		var p2 = normal.cross( p1 );
+		p2.normalize();
+		return [ p1, p2 ];
+	},
+	
+	getPerpendicular: function( v )
+	{
+		if( v.x == 0 )
+		{
+			return new THREE.Vector3D( 1, 0, 0 );
+		}
+		else
+		{
+			var temp = new THREE.Vector3( v.y, -v.x, 0 );
+			return temp.normalize();
+		}
+	}
+
 };
