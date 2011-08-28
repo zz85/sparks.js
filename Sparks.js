@@ -36,11 +36,50 @@ SPARKS.Emitter = function (counter) {
 
 
 SPARKS.Emitter.prototype = {
+	
+	_TIMESTEP: 15,
+	_timer: null,
+	_lastTime: null,
+	_timerStep: 10,
+	
+	// run its built in timer / stepping
+	start: function() {
+		this._lastTime = Date.now();
+		this._timer = setTimeout(this.step, this._timerStep, this);
+		console.log(this._timer);
+		this._isRunning = true;
+	},
+	
+	stop: function() {
+		this._isRunning = false;
+		clearTimeout(this._timer);
+	},
+	
+	// Step gets called upon by the engine
+	// but attempts to call update() on a regular basics
+	// This method is also described in http://gameclosure.com/2011/04/11/deterministic-delta-tee-in-js-games/
+	step: function(emitter) {
+		
+		var time = Date.now();
+		var elapsed = time - emitter._lastTime;
+	   	
+		while(elapsed >= emitter._TIMESTEP) {
+			emitter.update(emitter._TIMESTEP / 1000);
+			elapsed -= emitter._TIMESTEP;
+		}
+		
+		emitter._lastTime = time - elapsed;
+		
+		if (emitter._isRunning)
+		setTimeout(emitter.step, emitter._timerStep, emitter);
+		
+	},
 
+
+	// Update particle engine in seconds, not milliseconds
     update: function(time) {
+		
         var len = this._counter.updateEmitter( this, time );
-        //console.log('len', len);
-
         
         // Create particles
         for( i = 0; i < len; i++ ) {

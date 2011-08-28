@@ -18,16 +18,16 @@
 	</head>
 	<body>
 
-			
+	<!--
 
-			<script type="text/javascript" src="http://mrdoob.github.com/three.js/build/Three.js"></script>
+			<script type="text/javascript" src="https://raw.github.com/zz85/three.js/experimental/build/Three.js"></script>
 
 			<script type="text/javascript" src="http://mrdoob.github.com/three.js/examples/js/RequestAnimationFrame.js"></script>
 			<script type="text/javascript" src="http://mrdoob.github.com/three.js/examples/js/Stats.js"></script>
 
 			<script type="text/javascript" src="http://sole.github.com/tween.js/src/Tween.js"></script>
 			<script type="text/javascript" src="https://raw.github.com/zz85/sparks.js/master/Sparks.js"></script>
-			<!--
+				-->		
 			<script type="text/javascript" src="libs/Three.js"></script>
 
 			<script type="text/javascript" src="libs/RequestAnimationFrame.js"></script>
@@ -35,7 +35,7 @@
 
 			<script type="text/javascript" src="libs/Tween.js"></script>
 			<script type="text/javascript" src="../Sparks.js"></script>
-			-->	
+			
 				
 				<script type="x-shader/x-vertex" id="vertexshader"> 
 
@@ -64,9 +64,38 @@
 					uniform sampler2D texture;
 
 					varying vec4 vColor;
+					
+					
+					uniform float radius;
 
-					void main() {
+					uniform vec2 delta;
+
+					varying vec2 texCoord;
+
+
+
+					/* random number between 0 and 1 */
+
+					float random(vec3 scale, float seed) {
+
+					    /* use the fragment position for randomness */
+
+					    return fract(sin(dot(gl_FragCoord.xyz + seed, scale)) * 43758.5453 + seed);
+
+					}
+					
+					vec4 getColor(vec2 coords) {
+						vec4 outColor = texture2D( texture, coords );
+
+						if ( outColor.a < 0.1 ) discard;
 						
+						//color *
+						//gl_FragColor = outColor * vec4(  vColor.xyz, 1.0 );
+						return  outColor * vec4(  vColor.xyz, 1.0 );
+					}
+					
+					void main() {
+
 						vec4 outColor = texture2D( texture, gl_PointCoord );
 
 						if ( outColor.a < 0.5 ) discard;
@@ -81,6 +110,9 @@
 
 					}
 
+
+					
+					
 				</script>
 
 				
@@ -115,7 +147,7 @@
 				var PI2 = Math.PI * 2;
 				
 				
-				var particleslength = 1000;
+				var particleslength = 10000;
 				
 				var particles = new THREE.Geometry();
 				
@@ -158,17 +190,7 @@
 				
 				
 				// Create pools of vectors
-								
-								
-				// 
-				// var particleMaterial = new THREE.ParticleBasicMaterial( { size: 30,color: 0xffffFF,
-				// map: THREE.ImageUtils.loadTexture(
-				//             "images/particle.png"
-				//        ),
-				//         blending: THREE.AdditiveBlending,// 
-				//         transparent: true,
-				// depthTest: false} );
-				
+
 				//A
 				
 				attributes = {
@@ -180,45 +202,115 @@
 				
 				//B
 
+
+					var sprite = generateSprite() ;
+					var idata = sprite[1]
+					var canvasTexture = sprite[0];
+					
+					// var img = new Image();
+					// img.src = canvasTexture.toDataURL();
+					
+				//	document.body.appendChild(canvasTexture);
+				//ew Uint8Array(idata)
+				//var textu = new THREE.DataTexture (new Uint8Array(idata), 100,100);
+				//var textu = new THREE.Texture (canvasTexture);
+				//var textu = new THREE.Texture (idata.data, 128,128);
+				//console.log(idata);
+				
+				textu = new THREE.Texture ( canvasTexture );
+				// var textu = new THREE.DataTexture (new Uint8Array(idata.data), 128,128);
+				textu.needsUpdate = true;
+				//textu = createTextureFromData(128, 128, idata.data);
+				// textu.needsUpdate = true;
+
 				uniforms = {
 
 					amplitude: { type: "f", value: 1.0 },
 					color:     { type: "c", value: new THREE.Color( 0xffffff ) },
-					texture:   { type: "t", value: 0, texture: THREE.ImageUtils.loadTexture( "images/particle.png" ) } // new THREE.Texture( generateSprite()  )  //textures/sprites/spark1.png
-					
+					texture:   { type: "t", value: 0, texture:textu} //
+					// 
+				
 
 				};
 				
+				function generateSprite() {
+							
+						var canvas = document.createElement( 'canvas' );
+					canvas.width = 128;
+					canvas.height = 128;
+					
+					//16
+				
+					var context = canvas.getContext( '2d' );
+					
+				
+							//context.moveTo( x + 25, y + 25 );
+							var x = 4, y = 4;
+							context.scale(8, 8);
+							
+							context.fillStyle = "white";
+							context.strokeStyle = "white";
+							context.beginPath();
+							context.bezierCurveTo( x + 2.5, y + 2.5, x + 2.0, y, x, y );
+							context.bezierCurveTo( x - 3.0, y, x - 3.0, y + 3.5,x - 3.0,y + 3.5 );
+							context.bezierCurveTo( x - 3.0, y + 5.5, x - 1.0, y + 7.7, x + 2.5, y + 9.5 );
+							context.bezierCurveTo( x + 6.0, y + 7.7, x + 8.0, y + 5.5, x + 8.0, y + 3.5 );
+							context.bezierCurveTo( x + 8.0, y + 3.5, x + 8.0, y, x + 5.0, y );
+							context.bezierCurveTo( x + 3.5, y, x + 2.5, y + 2.5, x + 2.5, y + 2.5 );
+							context.closePath();
+							
+								context.lineWidth = 0.5; //0.05
+								context.stroke();
+						
+					var gradient = context.createRadialGradient( canvas.width /8, canvas.height /8, 0, canvas.width /8, canvas.height /8, canvas.width /8 );
+					// gradient.addColorStop( 0, 'rgba(255,255,255,1)' );
+					// gradient.addColorStop( 0.2, 'rgba(255,255,255,1)' );
+					// gradient.addColorStop( 0.8, 'rgba(128,128,128,1)' );
+					// gradient.addColorStop( 1, 'rgba(0,0,0,1)' );
+
+						gradient.addColorStop( 0, 'rgba(255,255,255,1)' );
+						gradient.addColorStop( 0.2, 'rgba(255,255,255,1)' );
+						//gradient.addColorStop( 0.6, 'rgba(200,200,200,1)' );
+						gradient.addColorStop( 0.4, 'rgba(128,128,128,1)' );
+						gradient.addColorStop( 1, 'rgba(0,0,0,1)' );
+
+						
+					context.fillStyle = gradient;
+					
+					context.fill();
+				
+					
+					//context.fillStyle = "white";
+					//context.fillRect( 0, 0, canvas.width, canvas.height );
+					var idata =context.getImageData(0, 0, canvas.width, canvas.height);
+					document.body.appendChild(canvas);
+					return [canvas, idata];
+				
+				}
 				
 
 				var shaderMaterial = new THREE.MeshShaderMaterial( {
-	
+
 					uniforms: 		uniforms,
 					attributes:     attributes,
-					 
+	 
 					vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-	 				fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+						fragmentShader: document.getElementById( 'fragmentshader' ).textContent
 
-					
+	
 					,blending: 		THREE.AdditiveBlending,
 				depthTest: 		false,
 				transparent:	true
-							
+			
 				});
-				
 
-				// var shaderMaterial = new THREE.ParticleBasicMaterial({
-				// 			color: 0xFFFFFF,
-				// 	    size: 20
-				// 	});
-			
 
-			
+
 				group = new THREE.ParticleSystem( particles, shaderMaterial );
 				
 				
 				group.dynamic = true;
-				group.sortParticles = true;
+				//group.sortParticles = true;
 				
 				var vertices = group.geometry.vertices;
 				var values_size = attributes.size.value;
@@ -231,7 +323,8 @@
 				
 					values_size[ v ] = 50;
 					values_color[ v ] = new THREE.Color( 0xaaff00 );
-					//values_color[ v ].setHSV( 0, 0, 0 );
+					values_color[ v ].setHSV( 0, 0, 0 );
+					particles.vertices[v].position.set(Number.POSITIVE_INFINITY,Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
 				
 	
 				}
@@ -252,26 +345,7 @@
 				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
 				
-				// function generateSprite() {
-				// 
-				// 	var canvas = document.createElement( 'canvas' );
-				// 	canvas.width = 16;
-				// 	canvas.height = 16;
-				// 
-				// 	var context = canvas.getContext( '2d' );
-				// 	var gradient = context.createRadialGradient( canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2 );
-				// 	gradient.addColorStop( 0, 'rgba(255,255,255,1)' );
-				// 	gradient.addColorStop( 0.2, 'rgba(0,255,255,1)' );
-				// 	gradient.addColorStop( 0.4, 'rgba(0,0,64,1)' );
-				// 	gradient.addColorStop( 1, 'rgba(0,0,0,1)' );
-				// 
-				// 	context.fillStyle = gradient;
-				// 	context.fillRect( 0, 0, canvas.width, canvas.height );
-				// 
-				// 	return canvas;
-				// 
-				// }
-				
+
 				
 				//// EMITTER STUFF
 				var h = 0;
@@ -283,10 +357,10 @@
 				var setTargetParticle = function() {
 					
 					// Find available pool
-					//material.color.setHSV(h, 1, 0.5); //0.7
+				
 					
 					var target = Pool.get();
-					values_size[target] = Math.random() * 50;
+					values_size[target] = Math.random() * 50+5;
 					
 					return target;
 	
@@ -305,7 +379,8 @@
 						if (h>1) h-=1;
 						
 						particles.vertices[target].position = p.position;
-						values_color[target].setHSV(h, 1, 0.5);
+						
+						values_color[target].setHSV(h, 0.8, 0.4);
 						
 					}; 
 					//
@@ -338,7 +413,7 @@
 				var sphereCap = new SPARKS.SphereCapZone(0, 0, 0, 10, 0, 40);
 
 				sparksEmitter.addInitializer(new SPARKS.Position( new SPARKS.PointZone( emitterpos ) ) );
-				sparksEmitter.addInitializer(new SPARKS.Lifetime(0,4));
+				sparksEmitter.addInitializer(new SPARKS.Lifetime(0,8));
 				sparksEmitter.addInitializer(new SPARKS.Target(null, setTargetParticle)); //, setTargetParticle //Pool.get()
 				sparksEmitter.addInitializer(new SPARKS.Velocity(sphereCap));
 
@@ -356,7 +431,8 @@
 						//values_size[target] = Math.random()*100;
 					}
 				});
-		
+				sparksEmitter.start();
+				
 
 			}
 
@@ -395,11 +471,11 @@
 
 
 			function animate(time) {
+				if (!time) time = Date.now();
 				elapsed = time - lasttime;
 			    //console.log( elapsed);
 			    lasttime = time;
-			    sparksEmitter.update(elapsed / 1000);
-				//sparksEmitter2.update(elapsed / 1000);
+			    //sparksEmitter.update(elapsed / 1000);
 				
 				requestAnimationFrame( animate );
 
@@ -414,6 +490,10 @@
 				
 				
 				group.geometry.__dirtyVertices = true;
+				group.geometry.__dirtyColors = true;
+				attributes.size.needsUpdate = true;
+				attributes.ca.needsUpdate = true;
+				
 				camera.position.x += ( mouseX - camera.position.x ) * 0.05;
 				camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
 				
