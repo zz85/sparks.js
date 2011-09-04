@@ -35,6 +35,13 @@
 
 			<script type="text/javascript" src="js/Tween.js"></script>
 			<script type="text/javascript" src="../Sparks.js"></script>
+			<script type="text/javascript" src="js/ShaderExtras.js"></script> 
+			<script type="text/javascript" src="js/postprocessing/EffectComposer.js"></script> 
+			<script type="text/javascript" src="js/postprocessing/RenderPass.js"></script> 
+			<script type="text/javascript" src="js/postprocessing/ShaderPass.js"></script> 
+			<script type="text/javascript" src="js/postprocessing/MaskPass.js"></script> 
+			<script type="text/javascript" src="js/postprocessing/BloomPass.js"></script> 
+			<script type="text/javascript" src="js/postprocessing/FilmPass.js"></script> 
 			
 				
 				<script type="x-shader/x-vertex" id="vertexshader"> 
@@ -425,6 +432,7 @@
 			var _rotation = 0;
 
 			function render() {
+				//console.log("render", sparksEmitter._particles.length);
 				
 				group.geometry.__dirtyVertices = true;
 				group.geometry.__dirtyColors = true;

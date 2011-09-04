@@ -35,6 +35,13 @@
 
 			<script type="text/javascript" src="js/Tween.js"></script>
 			<script type="text/javascript" src="../Sparks.js"></script>
+			<script type="text/javascript" src="js/ShaderExtras.js"></script> 
+			<script type="text/javascript" src="js/postprocessing/EffectComposer.js"></script> 
+			<script type="text/javascript" src="js/postprocessing/RenderPass.js"></script> 
+			<script type="text/javascript" src="js/postprocessing/ShaderPass.js"></script> 
+			<script type="text/javascript" src="js/postprocessing/MaskPass.js"></script> 
+			<script type="text/javascript" src="js/postprocessing/BloomPass.js"></script> 
+			<script type="text/javascript" src="js/postprocessing/FilmPass.js"></script> 
 			
 				
 				<script type="x-shader/x-vertex" id="vertexshader"> 
@@ -81,11 +88,11 @@
 
 						gl_FragColor = outColor * vec4( color * vColor.xyz, 1.0 );
 
-						float depth = gl_FragCoord.z / gl_FragCoord.w;
-						const vec3 fogColor = vec3( 0.0 );
+						//float depth = gl_FragCoord.z / gl_FragCoord.w;
+						///const vec3 fogColor = vec3( 0.0 );
 
-						float fogFactor = smoothstep( 200.0, 600.0, depth );
-						gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+						//float fogFactor = smoothstep( 200.0, 600.0, depth );
+						//gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
 
 					}
 
@@ -108,6 +115,7 @@
 			animate();
 			
 			var sparksEmitter;
+			var composer;
 
 			function init() {
 
@@ -120,7 +128,6 @@
 				scene = new THREE.Scene();
 
 				var PI2 = Math.PI * 2;
-				
 				
 				var particleslength = 10000;
 				
@@ -166,8 +173,6 @@
 				
 				// Create pools of vectors
 
-				//A
-				
 				attributes = {
 
 					size: {	type: 'f', value: [] },
@@ -175,16 +180,9 @@
 
 				};
 				
-				//B
-
-
 				var sprite = generateSprite() ;
-				var idata = sprite[1]
-				var canvasTexture = sprite[0];
-				textu = new THREE.Texture ( canvasTexture );
+				textu = new THREE.Texture ( sprite );
 				textu.needsUpdate = true;
-				// var textu = new THREE.DataTexture (new Uint8Array(idata.data), 128,128);
-				// textu.needsUpdate = true;
 
 				uniforms = {
 
@@ -208,35 +206,16 @@
 				
 					context.fillStyle = "white";
 					context.strokeStyle = "white";
-					context.beginPath();
-					context.arc(64, 64, 60, 0, Math.PI*2, false);
-				
-					context.closePath();
-
-					context.lineWidth = 0.5; //0.05
-					context.stroke();
-						
-					var gradient = context.createRadialGradient( canvas.width /2, canvas.height /2, 0, canvas.width /2, canvas.height /2, canvas.width /2 );
-					// gradient.addColorStop( 0, 'rgba(255,255,255,1)' );
-					// gradient.addColorStop( 0.2, 'rgba(255,255,255,1)' );
-					// gradient.addColorStop( 0.8, 'rgba(128,128,128,1)' );
-					// gradient.addColorStop( 1, 'rgba(0,0,0,1)' );
-
-					gradient.addColorStop( 0, 'rgba(255,255,255,1)' );
-					gradient.addColorStop( 0.2, 'rgba(255,255,255,1)' );
-					//gradient.addColorStop( 0.6, 'rgba(200,200,200,1)' );
-					gradient.addColorStop( 0.4, 'rgba(128,128,128,1)' );
-					gradient.addColorStop( 1, 'rgba(0,0,0,1)' );
-
-						
-					context.fillStyle = gradient;
 					
-					context.fill();
+					context.fillRect(0, 0, 128, 128) ;
 				
+					//context.lineWidth = 0.5; //0.05
+					//context.stroke();
+					//context.fill();
 					
-					var idata =context.getImageData(0, 0, canvas.width, canvas.height);
-					document.body.appendChild(canvas);
-					return [canvas, idata];
+					//var idata =context.getImageData(0, 0, canvas.width, canvas.height);
+					//document.body.appendChild(canvas);
+					return canvas;
 				
 				}
 				
@@ -289,7 +268,84 @@
 				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
 				
+				/// POSTPROCESSING STUFF
+				renderer.autoClear = false;
 
+
+
+				var shaderBleach = THREE.ShaderExtras[ "bleachbypass" ];
+				var shaderSepia = THREE.ShaderExtras[ "sepia" ];
+				var shaderVignette = THREE.ShaderExtras[ "vignette" ];
+				var shaderScreen = THREE.ShaderExtras[ "screen" ];
+
+				var effectBleach = new THREE.ShaderPass( shaderBleach );
+				var effectSepia = new THREE.ShaderPass( shaderSepia );
+				var effectVignette = new THREE.ShaderPass( shaderVignette );
+				var effectScreen = new THREE.ShaderPass( shaderScreen );
+				
+				var tryLaShader = THREE.ShaderExtras[ "focus" ];
+				var tryLa = new THREE.ShaderPass( tryLaShader );
+				
+				//var tryLaShader = THREE.ShaderExtras[ "triangleBlur" ];
+				//var tryLa = new THREE.ShaderPass( tryLaShader, 'texture' );; //
+				//tryLa.uniforms['delta'].value = new THREE.Vector2(10,10);
+				
+				
+				tryLa.uniforms['sampleDistance'].value = 2; //0.94 
+				tryLa.uniforms['waveFactor'].value = 0.002;  //0.00125
+				
+				
+				// var bokeh_shader = THREE.ShaderExtras[ "bokeh" ];
+				// var effectBokeh = new THREE.ShaderPass( bokeh_shader );
+				// 
+				// effectBokeh.uniforms[ "tColor" ].texture = postprocessing.rtTextureColor;
+				// //postprocessing.bokeh_uniforms[ "tDepth" ].texture = postprocessing.rtTextureDepth;
+				// // postprocessing.materialBokeh = new THREE.MeshShaderMaterial( {
+				// // 					uniforms: postprocessing.bokeh_uniforms,
+				// // 								vertexShader: bokeh_shader.vertexShader,
+				// // 								fragmentShader: bokeh_shader.fragmentShader
+				// // 
+				// // 							} );
+				// effectBokeh.uniforms[ "focus" ].value = 1.1;
+				// effectBokeh.uniforms[ "aspect" ].value = window.innerWidth / window.innerHeight;
+				
+				
+
+				effectBleach.uniforms[ "opacity" ].value = 0.95;
+
+				effectSepia.uniforms[ "amount" ].value = 0.9;
+
+				effectVignette.uniforms[ "offset" ].value = 0.95;
+				effectVignette.uniforms[ "darkness" ].value = 1.6;
+								
+				var renderScene = new THREE.RenderPass( scene, camera );
+				var effectBloom = new THREE.BloomPass( 0.5 );
+				var effectFilm = new THREE.FilmPass( 0.5, 0.125, 2048, false );
+				var effectFilmBW = new THREE.FilmPass( 0.35, 0.5, 2048, true );
+				var effectFilmBW2 = new THREE.FilmPass( 0.05, 0.5, 2048, true );
+				//	var effectDotScreen = new THREE.DotScreenPass( new THREE.Vector2( 0, 0 ), 0.5, 0.6 );
+
+				effectFilm.renderToScreen = true;
+
+				composer = new THREE.EffectComposer( renderer );
+
+				composer.addPass( renderScene );
+				//composer.addPass( effectBloom );
+				//effectBloom.renderToScreen = true;
+				
+				//composer.addPass( effectFilmBW );
+				//composer.addPass( effectFilm );
+				//composer.addPass( effectVignette );
+				
+				
+				//composer.addPass( effectBokeh );
+				composer.addPass( tryLa );
+				
+				//composer.addPass( effectSepia );
+				//composer.addPass( effectFilmBW );
+				tryLa.renderToScreen = true;
+				
+				console.log('composer',composer);
 				
 				//// EMITTER STUFF
 				var h = 0;
@@ -301,7 +357,7 @@
 					
 					// Find available pool
 					var target = Pool.get();
-					values_size[target] = Math.random() * 50+5;
+					values_size[target] = Math.random() * 20;
 					
 					return target;
 	
@@ -318,10 +374,10 @@
 						
 						h += 0.001;
 						if (h>1) h-=1;
-						
+						//h = 0.5;
 						particles.vertices[target].position = p.position;
 						
-						values_color[target].setHSV(h, 0.8, 0.15);
+						values_color[target].setHSV(h, 0.8, 0.1); //0.15
 						
 					}; 
 					//
@@ -348,7 +404,7 @@
 				};
 				
 				
-				sparksEmitter = new SPARKS.Emitter(new SPARKS.SteadyCounter(300));
+				sparksEmitter = new SPARKS.Emitter(new SPARKS.SteadyCounter(500));
 
 				emitterpos = new THREE.Vector3(0,0,0);
 				var sphereCap = new SPARKS.SphereCapZone(0, 0, 0, 10, 0, 40);
@@ -365,13 +421,13 @@
 				sparksEmitter.addCallback("created", onParticleCreated);
 				sparksEmitter.addCallback("dead", onParticleDead);
 				
-				sparksEmitter.addCallback("updated", function(p) {
-					var target = particle.target;
-					if (target) {
-						// update energy properties
-						//values_size[target] = Math.random()*100;
-					}
-				});
+				// sparksEmitter.addCallback("updated", function(p) {
+				// 				var target = particle.target;
+				// 				if (target) {
+				// 					// update energy properties
+				// 					//values_size[target] = Math.random()*100;
+				// 				}
+				// 			});
 		
 
 				sparksEmitter.start();
@@ -442,8 +498,11 @@
 				emitterpos.x = 100 * Math.sin(_rotation * SPARKS.Utils.DEGREE_TO_RADIAN);
 	            emitterpos.y = 100 * Math.cos(_rotation * SPARKS.Utils.DEGREE_TO_RADIAN);
 
-				renderer.render( scene, camera );
-
+				//renderer.render( scene, camera );
+				//renderer.clear();
+				composer.render( 0.05 );
+				
+	
 			}
 
 		</script>

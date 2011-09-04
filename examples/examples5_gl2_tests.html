@@ -28,12 +28,12 @@
 			<script type="text/javascript" src="http://sole.github.com/tween.js/src/Tween.js"></script>
 			<script type="text/javascript" src="https://raw.github.com/zz85/sparks.js/master/Sparks.js"></script>
 				-->		
-			<script type="text/javascript" src="libs/Three.js"></script>
+			<script type="text/javascript" src="js/Three.js"></script>
 
-			<script type="text/javascript" src="libs/RequestAnimationFrame.js"></script>
-			<script type="text/javascript" src="libs/Stats.js"></script>
+			<script type="text/javascript" src="js/RequestAnimationFrame.js"></script>
+			<script type="text/javascript" src="js/Stats.js"></script>
 
-			<script type="text/javascript" src="libs/Tween.js"></script>
+			<script type="text/javascript" src="js/Tween.js"></script>
 			<script type="text/javascript" src="../Sparks.js"></script>
 			
 				
@@ -103,6 +103,7 @@
 			var windowHalfY = window.innerHeight / 2;
 
 			var lasttime = Date.now(), elapsed;
+			var composer;
 			
 			init();
 			animate();
@@ -289,7 +290,18 @@
 				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
 				
+				/// POSTPROCESSING STUFF
+					var focusShader = THREE.ShaderExtras[ "focus" ];
+					var focusEffect = new THREE.ShaderPass( focusShader );
+					focusEffect.uniforms['sampleDistance'].value = 2; //0.94 
+					focusEffect.uniforms['waveFactor'].value = 0.002;  //0.00125
+					
+					var renderScene = new THREE.RenderPass( scene, camera );
+					composer = new THREE.EffectComposer( renderer );
 
+					composer.addPass( renderScene );
+					composer.addPass( focusEffect );
+					focusEffect.renderToScreen = true;
 				
 				//// EMITTER STUFF
 				var h = 0;
@@ -445,7 +457,8 @@
 				emitterpos.x = 100 * Math.sin(_rotation * SPARKS.Utils.DEGREE_TO_RADIAN);
 	            emitterpos.y = 100 * Math.cos(_rotation * SPARKS.Utils.DEGREE_TO_RADIAN);
 
-				renderer.render( scene, camera );
+				//renderer.render( scene, camera );
+				composer.render( 0.05 );
 
 			}
 
