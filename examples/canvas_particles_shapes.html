@@ -64,7 +64,7 @@
 				info.style.top = '10px';
 				info.style.width = '100%';
 				info.style.textAlign = 'center';
-				info.innerHTML = 'Three.js with Love. Simple Particle Systems with Shapes by <a href="http://www.lab4games.net/zz85/blog">zz85</a><br/>Move your mouse. Click to pause/resume.';
+				info.innerHTML = 'Three.js with WebGL Love. Simple Particle Systems with Shapes by <a href="http://www.lab4games.net/zz85/blog">zz85</a><br/>Move your mouse. Click to pause/resume.';
 				container.appendChild( info );
 
 				camera = new THREE.Camera( 50, window.innerWidth / window.innerHeight, 1, 1000 );
@@ -191,7 +191,16 @@
 				
 				var onParticleCreated = function(p) {
 					var position = p.position;
-					p.target.position = position;	
+					p.target.position = position;
+					
+						timeOnShapePath += 0.009;
+						if (timeOnShapePath > 1) timeOnShapePath -= 1;
+
+						// TODO Create a PointOnShape Action/Zone in the particle engine
+						var pointOnShape = heartShape.getPointAt(timeOnShapePath);
+
+						emitterpos.x = pointOnShape.x * 5 - 100;
+						emitterpos.y = -pointOnShape.y * 5 + 400;
 				};
 			
 				var onParticleDead = function(particle) {
@@ -309,14 +318,7 @@
 			
 
 			function render() {
-				timeOnShapePath += 0.0337;
-				if (timeOnShapePath > 1) timeOnShapePath -= 1;
-				
-				// TODO Create a PointOnShape Action/Zone in the particle engine
-				var pointOnShape = heartShape.getPointAt(timeOnShapePath);
-				
-				emitterpos.x = pointOnShape.x * 5 - 100;
-				emitterpos.y = -pointOnShape.y * 5 + 400;
+			
 				
 				// Pretty cool effect if you enable this
 				//particleCloud.rotation.y += 0.05;

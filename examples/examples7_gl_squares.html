@@ -283,16 +283,17 @@
 				var effectVignette = new THREE.ShaderPass( shaderVignette );
 				var effectScreen = new THREE.ShaderPass( shaderScreen );
 				
-				var tryLaShader = THREE.ShaderExtras[ "focus" ];
-				var tryLa = new THREE.ShaderPass( tryLaShader );
+				var shaderFocus = THREE.ShaderExtras[ "focus" ];
+				var effectFocus = new THREE.ShaderPass( shaderFocus );
 				
-				//var tryLaShader = THREE.ShaderExtras[ "triangleBlur" ];
-				//var tryLa = new THREE.ShaderPass( tryLaShader, 'texture' );; //
-				//tryLa.uniforms['delta'].value = new THREE.Vector2(10,10);
+				var shaderBlur = THREE.ShaderExtras[ "triangleBlur" ];
+				var effectBlur = new THREE.ShaderPass( shaderBlur, 'texture' );; //
+				effectBlur.uniforms['delta'].value = new THREE.Vector2(0.0010,0.0010);
+				// Radius / Width
 				
 				
-				tryLa.uniforms['sampleDistance'].value = 2; //0.94 
-				tryLa.uniforms['waveFactor'].value = 0.002;  //0.00125
+				effectFocus.uniforms['sampleDistance'].value = 2; //0.94 
+				effectFocus.uniforms['waveFactor'].value = 0.002;  //0.00125
 				
 				
 				// var bokeh_shader = THREE.ShaderExtras[ "bokeh" ];
@@ -339,11 +340,12 @@
 				
 				
 				//composer.addPass( effectBokeh );
-				composer.addPass( tryLa );
+				composer.addPass( effectBlur );
 				
 				//composer.addPass( effectSepia );
 				//composer.addPass( effectFilmBW );
-				tryLa.renderToScreen = true;
+				effectBlur.renderToScreen = true;
+				effectFocus.renderToScreen = true;
 				
 				console.log('composer',composer);
 				
@@ -500,7 +502,7 @@
 
 				//renderer.render( scene, camera );
 				//renderer.clear();
-				composer.render( 0.05 );
+				composer.render( );
 				
 	
 			}

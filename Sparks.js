@@ -129,6 +129,8 @@ SPARKS.Emitter.prototype = {
             }
         }
         
+		this.dispatchEvent("loopUpdated");
+		
     },
     
     createParticle: function() {

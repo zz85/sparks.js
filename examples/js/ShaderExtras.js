@@ -757,7 +757,7 @@ THREE.ShaderExtras = {
 		},
 
 		vertexShader: [
-
+			 
 			"varying vec2 texCoord;",
 
 			"void main() {",
@@ -769,9 +769,9 @@ THREE.ShaderExtras = {
 
 		].join("\n"),
 
-		fragmentShader:
-		'\
-		        uniform sampler2D texture;\
+		fragmentShader:[
+		"#define ITERATIONS 30.0\n" + 
+		'uniform sampler2D texture;\
 		        uniform vec2 delta;\
 		        varying vec2 texCoord;\
 		\
@@ -786,8 +786,8 @@ THREE.ShaderExtras = {
 		            /* randomize the lookup values to hide the fixed number of samples */\
 		            float offset = random(vec3(12.9898, 78.233, 151.7182), 0.0);\
 		            \
-		            for (float t = -30.0; t <= 30.0; t++) {\
-		                float percent = (t + offset - 0.5) / 30.0;\
+		            for (float t = -ITERATIONS; t <= ITERATIONS; t++) {\
+		                float percent = (t + offset - 0.5) / ITERATIONS;\
 		                float weight = 1.0 - abs(percent);\
 		                color += texture2D(texture, texCoord + delta * percent) * weight;\
 		                total += weight;\
@@ -795,6 +795,7 @@ THREE.ShaderExtras = {
 		            gl_FragColor = color / total;\
 		        }\
 		'
+		]
 	},
 
 	/* -------------------------------------------------------------------------
