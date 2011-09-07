@@ -739,7 +739,7 @@ THREE.ShaderExtras = {
 	/* -------------------------------------------------------------------------
 	//	Triangle Blur shader
 	//  - based on glfx.js triangle blur shader
-	// - This is the most basic blur filter, which convolves the image with a
+	// A basic blur filter, which convolves the image with a
 	// pyramid filter. The pyramid filter is separable and is applied as two
 	// radius The radius of the pyramid convolved with the image.
 	//		https://github.com/evanw/glfx.js
@@ -750,8 +750,7 @@ THREE.ShaderExtras = {
 		uniforms : {
 
 			"texture": 		{ type: "t", value: 0, texture: null },
-			"delta": 		{ type: "v2", value:new THREE.Vector2( 1, 1 )  },
-			"iterations": { type: "f", value: 30 }
+			"delta": 		{ type: "v2", value:new THREE.Vector2( 1, 1 )  }
 		
 
 		},
