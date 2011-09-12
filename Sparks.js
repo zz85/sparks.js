@@ -288,7 +288,9 @@ SPARKS.Move.prototype.update = function(emitter, particle, time) {
 
 };
 
-
+/*
+ * Accelerate action affects velocity in specified 3d direction 
+ */
 SPARKS.Accelerate = function(x,y,z) {
 	
 	if (x instanceof THREE.Vector3) {
@@ -310,6 +312,55 @@ SPARKS.Accelerate.prototype.update = function(emitter, particle, time) {
     v.z += acc.z * time; 
 
 };
+
+/*
+ * Accelerate Factor accelerate based on a factor of particle's velocity.
+ */
+SPARKS.AccelerateFactor = function(factor) {
+    this.factor = factor;
+};
+
+SPARKS.AccelerateFactor.prototype.update = function(emitter, particle, time) {
+    var factor = this.factor;
+    
+    var v = particle.velocity;
+	var len = v.length();
+	var adjFactor;
+    if (len>0) {
+
+		adjFactor = factor * time / len;
+		adjFactor += 1;
+		
+		v.multiplyScalar(adjFactor);
+		// v.x *= adjFactor;
+		// 	    v.y *= adjFactor;
+		// 	    v.z *= adjFactor; 
+	}
+
+};
+
+/*
+AccelerateNormal
+ * AccelerateVelocity affects velocity based on its velocity direction
+ */
+SPARKS.AccelerateVelocity = function(factor) {
+
+	this.factor = factor;
+
+};
+
+SPARKS.AccelerateVelocity.prototype.update = function(emitter, particle, time) {
+    var factor = this.factor;
+
+    var v = particle.velocity;
+
+
+    v.z += - v.x * factor;
+    v.y += v.z * factor;
+    v.x +=  v.y * factor;
+
+};
+
 
 /* Set the max ammount of x,y,z drift movements in a second */
 SPARKS.RandomDrift = function(x,y,z) {
@@ -389,6 +440,25 @@ SPARKS.ParallelogramZone.prototype.getLocation = function() {
 	var d2 = this.side2.clone().multiplyScalar( Math.random() );
 	d1.addSelf(d2);
 	return d1.addSelf( this.corner );
+	
+};
+
+SPARKS.CubeZone = function(position, x, y, z) {
+    this.position = position;
+	this.x = x;
+	this.y = y;
+	this.z = z;
+};
+
+SPARKS.CubeZone.prototype.getLocation = function() {
+    //TODO use pool?
+
+	var location = this.position.clone();
+	location.x += Math.random() * this.x;
+	location.y += Math.random() * this.y;
+	location.z += Math.random() * this.z;
+	
+	return location;
 	
 };
 
