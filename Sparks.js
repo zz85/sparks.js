@@ -66,6 +66,9 @@ SPARKS.Emitter.prototype = {
 		var time = Date.now();
 		var elapsed = time - emitter._lastTime;
 	   	
+		// TOOD, if elapsed is way higher than time step,
+		// decide to drop cycles? perhaps set to a limit of 10 or something?
+
 		while(elapsed >= emitter._TIMESTEP) {
 			emitter.update(emitter._TIMESTEP / 1000);
 			elapsed -= emitter._TIMESTEP;
@@ -172,15 +175,22 @@ SPARKS.Emitter.prototype = {
 
 };
 
+/*
+ * Steady Counter attempts to produces a particle rate steadily
+ *
+ */
 
 // Number of particles per seconds
 SPARKS.SteadyCounter = function(rate) {
     this.rate = rate;
     
+	this.released = 0;
 };
 
 SPARKS.SteadyCounter.prototype.updateEmitter = function(emitter, time) {
-    
+    /* TODO - make a counter for every second
+		and releases particles by short fall.
+	*/
     return Math.floor(time * this.rate);
 };
 
