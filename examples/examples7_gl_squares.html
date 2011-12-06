@@ -207,7 +207,12 @@
 					context.fillStyle = "white";
 					context.strokeStyle = "white";
 					
-					context.fillRect(0, 0, 128, 128) ;
+					//context.fillRect(0, 0, 128, 128) ;
+					
+		context.beginPath();
+		context.arc( 64, 64, 64, 0, PI2, true );
+		context.closePath();
+		context.fill();
 				
 					//context.lineWidth = 0.5; //0.05
 					//context.stroke();
@@ -219,18 +224,47 @@
 				
 				}
 				
+				function generateSprite() {
+							
+					var canvas = document.createElement( 'canvas' );
+					canvas.width = 128;
+					canvas.height = 128;
+				
+					var context = canvas.getContext( '2d' );
+					
+					
+					context.beginPath();
+					context.arc(64, 64, 60, 0, Math.PI*2, false);
+					context.closePath();
+					
+					context.lineWidth = 0.5; //0.05
+					context.stroke();
+
+					var gradient = context.createRadialGradient( canvas.width /2, canvas.height /2, 0, canvas.width /2, canvas.height /2, canvas.width /2 );				
+					gradient.addColorStop( 0, 'rgba(255,255,255,1)' );
+					gradient.addColorStop( 0.2, 'rgba(255,255,255,1)' );
+					//gradient.addColorStop( 0.6, 'rgba(200,200,200,1)' );
+					gradient.addColorStop( 0.4, 'rgba(128,128,128,1)' );
+					gradient.addColorStop( 1, 'rgba(0,0,0,1)' );
+					context.fillStyle = gradient;
+					
+					context.fill();
+					
+					return canvas;
+				
+				}
 
 				var shaderMaterial = new THREE.MeshShaderMaterial( {
 
-					uniforms: 		uniforms,
-					attributes:     attributes,
+					uniforms	: uniforms,
+					attributes	: attributes,
 	 
-					vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-					fragmentShader: document.getElementById( 'fragmentshader' ).textContent
-					,
-					blending: 		THREE.AdditiveBlending,
-					depthTest: 		false,
-					transparent:	true
+					vertexShader	: document.getElementById( 'vertexshader' ).textContent,
+					fragmentShader	: document.getElementById( 'fragmentshader' ).textContent,
+
+					blending	: THREE.AdditiveBlending,
+					depthTest	: false,
+					transparent	: true
 				
 				});
 
@@ -267,88 +301,7 @@
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
-				
-				/// POSTPROCESSING STUFF
-				renderer.autoClear = false;
-
-
-
-				var shaderBleach = THREE.ShaderExtras[ "bleachbypass" ];
-				var shaderSepia = THREE.ShaderExtras[ "sepia" ];
-				var shaderVignette = THREE.ShaderExtras[ "vignette" ];
-				var shaderScreen = THREE.ShaderExtras[ "screen" ];
-
-				var effectBleach = new THREE.ShaderPass( shaderBleach );
-				var effectSepia = new THREE.ShaderPass( shaderSepia );
-				var effectVignette = new THREE.ShaderPass( shaderVignette );
-				var effectScreen = new THREE.ShaderPass( shaderScreen );
-				
-				var shaderFocus = THREE.ShaderExtras[ "focus" ];
-				var effectFocus = new THREE.ShaderPass( shaderFocus );
-				
-				var shaderBlur = THREE.ShaderExtras[ "triangleBlur" ];
-				var effectBlur = new THREE.ShaderPass( shaderBlur, 'texture' );; //
-				effectBlur.uniforms['delta'].value = new THREE.Vector2(0.0010,0.0010);
-				// Radius / Width
-				
-				
-				effectFocus.uniforms['sampleDistance'].value = 2; //0.94 
-				effectFocus.uniforms['waveFactor'].value = 0.002;  //0.00125
-				
-				
-				// var bokeh_shader = THREE.ShaderExtras[ "bokeh" ];
-				// var effectBokeh = new THREE.ShaderPass( bokeh_shader );
-				// 
-				// effectBokeh.uniforms[ "tColor" ].texture = postprocessing.rtTextureColor;
-				// //postprocessing.bokeh_uniforms[ "tDepth" ].texture = postprocessing.rtTextureDepth;
-				// // postprocessing.materialBokeh = new THREE.MeshShaderMaterial( {
-				// // 					uniforms: postprocessing.bokeh_uniforms,
-				// // 								vertexShader: bokeh_shader.vertexShader,
-				// // 								fragmentShader: bokeh_shader.fragmentShader
-				// // 
-				// // 							} );
-				// effectBokeh.uniforms[ "focus" ].value = 1.1;
-				// effectBokeh.uniforms[ "aspect" ].value = window.innerWidth / window.innerHeight;
-				
-				
-
-				effectBleach.uniforms[ "opacity" ].value = 0.95;
-
-				effectSepia.uniforms[ "amount" ].value = 0.9;
-
-				effectVignette.uniforms[ "offset" ].value = 0.95;
-				effectVignette.uniforms[ "darkness" ].value = 1.6;
 								
-				var renderScene = new THREE.RenderPass( scene, camera );
-				var effectBloom = new THREE.BloomPass( 0.5 );
-				var effectFilm = new THREE.FilmPass( 0.5, 0.125, 2048, false );
-				var effectFilmBW = new THREE.FilmPass( 0.35, 0.5, 2048, true );
-				var effectFilmBW2 = new THREE.FilmPass( 0.05, 0.5, 2048, true );
-				//	var effectDotScreen = new THREE.DotScreenPass( new THREE.Vector2( 0, 0 ), 0.5, 0.6 );
-
-				effectFilm.renderToScreen = true;
-
-				composer = new THREE.EffectComposer( renderer );
-
-				composer.addPass( renderScene );
-				//composer.addPass( effectBloom );
-				//effectBloom.renderToScreen = true;
-				
-				//composer.addPass( effectFilmBW );
-				//composer.addPass( effectFilm );
-				//composer.addPass( effectVignette );
-				
-				
-				//composer.addPass( effectBokeh );
-				composer.addPass( effectBlur );
-				
-				//composer.addPass( effectSepia );
-				//composer.addPass( effectFilmBW );
-				effectBlur.renderToScreen = true;
-				effectFocus.renderToScreen = true;
-				
-				console.log('composer',composer);
-				
 				//// EMITTER STUFF
 				var h = 0;
 				var k = 0.7;
@@ -359,7 +312,8 @@
 					
 					// Find available pool
 					var target = Pool.get();
-					values_size[target] = Math.random() * 20;
+					//values_size[target] = Math.random() * 20;
+					values_size[target] = 50+Math.random() * 20;
 					
 					return target;
 	
@@ -382,13 +336,7 @@
 						values_color[target].setHSV(h, 0.8, 0.1); //0.15
 						
 					}; 
-					//
 					
-				};
-				
-				var onParticleInitialized = function(particle) {
-					var position = p.position;
-					p.target.position = position;	
 				};
 				
 				var onParticleDead = function(particle) {
@@ -408,8 +356,8 @@
 				
 				sparksEmitter = new SPARKS.Emitter(new SPARKS.SteadyCounter(500));
 
-				emitterpos = new THREE.Vector3(0,0,0);
-				var sphereCap = new SPARKS.SphereCapZone(0, 0, 0, 10, 0, 40);
+				emitterpos	= new THREE.Vector3(0,0,0);
+				var sphereCap	= new SPARKS.SphereCapZone(0, 0, 0, 10, 0, 40);
 
 				sparksEmitter.addInitializer(new SPARKS.Position( new SPARKS.PointZone( emitterpos ) ) );
 				sparksEmitter.addInitializer(new SPARKS.Lifetime(0,8));
@@ -423,18 +371,8 @@
 				sparksEmitter.addCallback("created", onParticleCreated);
 				sparksEmitter.addCallback("dead", onParticleDead);
 				
-				// sparksEmitter.addCallback("updated", function(p) {
-				// 				var target = particle.target;
-				// 				if (target) {
-				// 					// update energy properties
-				// 					//values_size[target] = Math.random()*100;
-				// 				}
-				// 			});
-		
 
 				sparksEmitter.start();
-				console.log(sparksEmitter);
-
 			}
 
 			// End Init
@@ -488,23 +426,13 @@
 				group.geometry.__dirtyColors = true;
 				attributes.size.needsUpdate = true;
 				attributes.ca.needsUpdate = true;
-				
-				camera.position.x += ( mouseX - camera.position.x ) * 0.05;
-				camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
-				
-				group.rotation.x += 0.01;
-				group.rotation.y += 0.02;
-				
+								
 				_rotation += 3;
 	            
 				emitterpos.x = 100 * Math.sin(_rotation * SPARKS.Utils.DEGREE_TO_RADIAN);
-	            emitterpos.y = 100 * Math.cos(_rotation * SPARKS.Utils.DEGREE_TO_RADIAN);
+				emitterpos.y = 100 * Math.cos(_rotation * SPARKS.Utils.DEGREE_TO_RADIAN);
 
-				//renderer.render( scene, camera );
-				//renderer.clear();
-				composer.render( );
-				
-	
+				renderer.render( scene, camera );
 			}
 
 		</script>

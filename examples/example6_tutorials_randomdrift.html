@@ -64,8 +64,6 @@
 				camera.position.z = 200; //1000
 
 				scene = new THREE.Scene();
-
-				
 			
 
 				group = new THREE.Object3D();
@@ -101,45 +99,35 @@
 					
 					particle = new THREE.Particle( material );
 
-					particle.scale.x = particle.scale.y = 4;
+					particle.scale.x = particle.scale.y = 1 + Math.random()*3;
 					group.addChild( particle );	
 
 					return particle;
 				};
 		
-				var onParticleCreated = function(p) {
-					var position = p.position;
-					p.target.position = position;	
-				};
-				
-				var onParticleInitialized = function(particle) {
-					var position = p.position;
-					p.target.position = position;	
-				};
-				
-				var onParticleDead = function(particle) {
-					particle.target.visible = false; // is this a work around?
-					group.removeChild(particle.target); 
-				};
 				
 				
-				sparksEmitter = new SPARKS.Emitter(new SPARKS.SteadyCounter(160));
+				sparksEmitter = new SPARKS.Emitter(new SPARKS.SteadyCounter(70));
 
 				sparksEmitter.addInitializer(new SPARKS.Position( new SPARKS.PointZone( new THREE.Vector3(0,0,0) ) ) );
-				sparksEmitter.addInitializer(new SPARKS.Lifetime(4,5));
+				sparksEmitter.addInitializer(new SPARKS.Lifetime(0,3));
 				sparksEmitter.addInitializer(new SPARKS.Target(null, callback));
 				sparksEmitter.addInitializer(new SPARKS.Velocity(new SPARKS.PointZone(new THREE.Vector3(0,100,00))));
 				
 
 				sparksEmitter.addAction(new SPARKS.Age());
 				sparksEmitter.addAction(new SPARKS.Move()); 
-				sparksEmitter.addAction(new SPARKS.RandomDrift(500,500,0));
-				//sparksEmitter.addAction(new SPARKS.Accelerate(0,-100,0));
+				sparksEmitter.addAction(new SPARKS.RandomDrift(2*500,500,2*500));
+				sparksEmitter.addAction(new SPARKS.Accelerate(0,-40,0));
 				
 				
-				sparksEmitter.addCallback("created", onParticleCreated);
-				sparksEmitter.addCallback("initialized", onParticleInitialized);
-				sparksEmitter.addCallback("dead", onParticleDead);
+				sparksEmitter.addCallback("created", function(particle) {
+					particle.target.position = particle.position;	
+				});
+				sparksEmitter.addCallback("dead", function(particle) {
+					particle.target.visible = false; // is this a work around?
+					group.removeChild(particle.target); 
+				});
 
 				sparksEmitter.start();
 
