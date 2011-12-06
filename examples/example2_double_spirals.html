@@ -155,11 +155,6 @@
 					p.target.position = position;	
 				};
 				
-				var onParticleInitialized = function(particle) {
-					var position = p.position;
-					p.target.position = position;	
-				};
-				
 				var onParticleDead = function(particle) {
 					particle.target.visible = false; // is this a work around?
 					group.remove(particle.target); 
@@ -181,7 +176,6 @@
 				sparksEmitter.addAction(new SPARKS.Move()); 
 				
 				sparksEmitter.addCallback("created", onParticleCreated);
-				sparksEmitter.addCallback("initialized", onParticleInitialized);
 				sparksEmitter.addCallback("dead", onParticleDead);
 				
 				sparksEmitter2 = new SPARKS.Emitter(new SPARKS.SteadyCounter(150));
@@ -198,7 +192,6 @@
 				sparksEmitter2.addAction(new SPARKS.Move()); 
 				
 				sparksEmitter2.addCallback("created", onParticleCreated);
-				sparksEmitter2.addCallback("initialized", onParticleInitialized);
 				sparksEmitter2.addCallback("dead", onParticleDead);
 				
 				/*
