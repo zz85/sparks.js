@@ -175,8 +175,8 @@
 				text.overdraw = true;
 
 				parent = new THREE.Object3D();
-                parent.addChild( text );
-				scene.addObject( parent );
+                parent.add( text );
+				scene.add( parent );
 				
 				///// Create particle objects for Three.js
 				
@@ -340,8 +340,8 @@
 				
 				}
 
-				parent.addChild( particleCloud );
-				//scene.addObject( particleCloud );
+				parent.add( particleCloud );
+				//scene.add( particleCloud );
 				particleCloud.y = 800;
 				
 				

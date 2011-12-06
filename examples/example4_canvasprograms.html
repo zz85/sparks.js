@@ -65,7 +65,7 @@
 				scene = new THREE.Scene();
 
 				group = new THREE.Object3D();
-				scene.addObject( group );
+				scene.add( group );
 
 
 				renderer = new THREE.CanvasRenderer();
@@ -118,7 +118,7 @@
 					particle = new THREE.Particle( material );
 
 					particle.scale.x = particle.scale.y = Math.random() * 10 + 4;
-					group.addChild( particle );	
+					group.add( particle );	
 
 					return particle;
 				};
@@ -134,7 +134,7 @@
 					particle = new THREE.Particle( material );
 
 					particle.scale.x = particle.scale.y = Math.random() * 5 + 4;
-					group.addChild( particle );	
+					group.add( particle );	
 
 					return particle;
 				};
@@ -151,7 +151,7 @@
 				
 				var onParticleDead = function(particle) {
 					particle.target.visible = false; // is this a work around?
-					group.removeChild(particle.target); 
+					group.remove(particle.target); 
 				};
 				
 				

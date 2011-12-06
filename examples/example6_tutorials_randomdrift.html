@@ -67,7 +67,7 @@
 			
 
 				group = new THREE.Object3D();
-				scene.addObject( group );
+				scene.add( group );
 
 
 				renderer = new THREE.CanvasRenderer();
@@ -100,7 +100,7 @@
 					particle = new THREE.Particle( material );
 
 					particle.scale.x = particle.scale.y = 1 + Math.random()*3;
-					group.addChild( particle );	
+					group.add( particle );	
 
 					return particle;
 				};
@@ -126,7 +126,7 @@
 				});
 				sparksEmitter.addCallback("dead", function(particle) {
 					particle.target.visible = false; // is this a work around?
-					group.removeChild(particle.target); 
+					group.remove(particle.target); 
 				});
 
 				sparksEmitter.start();
