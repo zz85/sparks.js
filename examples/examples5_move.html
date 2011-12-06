@@ -84,7 +84,7 @@
 
 						vec4 outColor = texture2D( texture, gl_PointCoord );
 
-						if ( outColor.a < 0.5 ) discard;
+						if ( outColor.a < 0.2 ) discard;
 
 						gl_FragColor = outColor * vec4( color * vColor.xyz, 1.0 );
 
@@ -355,7 +355,7 @@
 				};
 				
 				
-				sparksEmitter = new SPARKS.Emitter(new SPARKS.SteadyCounter(300));
+				sparksEmitter = new SPARKS.Emitter(new SPARKS.SteadyCounter(500));
 
 				emitterpos = new THREE.Vector3(0,0,0);
 				var sphereCap = new SPARKS.SphereCapZone(0, 0, 0, 10, 0, 40);
@@ -430,6 +430,8 @@
 			}
 			
 			var _rotation = 0;
+			
+			var spiralTime = 8 * 1000;
 
 			function render() {
 				//console.log("render", sparksEmitter._particles.length);
@@ -441,14 +443,20 @@
 				
 				camera.position.x += ( mouseX - camera.position.x ) * 0.05;
 				camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
+				// 
+				// group.rotation.x += 0.01;
+				// group.rotation.y += 0.02;
 				
-				group.rotation.x += 0.01;
-				group.rotation.y += 0.02;
-				
-				_rotation += 3;
+				_rotation += 6;
 	            
 				emitterpos.x = 100 * Math.sin(_rotation * SPARKS.Utils.DEGREE_TO_RADIAN);
-	            emitterpos.y = 100 * Math.cos(_rotation * SPARKS.Utils.DEGREE_TO_RADIAN);
+				emitterpos.y = 100 * Math.cos(_rotation * SPARKS.Utils.DEGREE_TO_RADIAN);
+	
+				var progress = (Date.now() % spiralTime / spiralTime);
+				// emitterpos.x = progress * 100 * Math.sin(_rotation * SPARKS.Utils.DEGREE_TO_RADIAN);
+				// emitterpos.y = progress * 100 * Math.cos(_rotation * SPARKS.Utils.DEGREE_TO_RADIAN);
+	
+				emitterpos.z = -200 + 400 *  progress ;
 
 				renderer.render( scene, camera );
 
