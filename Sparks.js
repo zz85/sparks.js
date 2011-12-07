@@ -184,14 +184,23 @@ SPARKS.Emitter.prototype = {
 SPARKS.SteadyCounter = function(rate) {
     this.rate = rate;
     
-	this.released = 0;
+	this.releaseCount = 0;
+	this.releaseTime = 0;
 };
 
 SPARKS.SteadyCounter.prototype.updateEmitter = function(emitter, time) {
     /* TODO - make a counter for every second
 		and releases particles by short fall.
 	*/
-    return Math.floor(time * this.rate);
+
+	this.releaseTime += time;
+	
+	var releaseTarget = Math.floor(this.releaseTime * this.rate);
+	var shortfall = releaseTarget - this.releaseCount;
+	
+	this.releaseCount = releaseTarget;
+	
+    return shortfall;
 };
 
 
