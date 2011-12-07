@@ -233,11 +233,6 @@
 					p.target.position = position;	
 				};
 				
-				var onParticleInitialized = function(particle) {
-					var position = p.position;
-					p.target.position = position;	
-				};
-				
 				var onParticleDead = function(particle) {
 					particle.target.visible = false; // is this a work around?
 					group.remove(particle.target); 
@@ -262,7 +257,6 @@
 				
 				
 				sparksEmitter.addCallback("created", onParticleCreated);
-				sparksEmitter.addCallback("initialized", onParticleInitialized);
 				sparksEmitter.addCallback("dead", onParticleDead);
 				
 				sparksEmitter.start();
