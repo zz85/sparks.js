@@ -36,6 +36,8 @@
 		<script type="text/javascript" src="js/Tween.js"></script>
 			<script type="text/javascript" src="../Sparks.js"></script>
 
+		<script type="text/javascript" src="CanvasShaders.js"></script>
+
 		<script type="text/javascript">
 			// Inspired from http://wonderfl.net/c/qTwn and mr doob three.js examples
 
@@ -62,17 +64,6 @@
 				camera.position.z = 200; //1000
 
 				scene = new THREE.Scene();
-
-				var PI2 = Math.PI * 2;
-				var program = function ( context ) {
-					context.beginPath();
-					context.arc( 0, 0, 1, 0, PI2, true );
-					context.closePath();
-					context.fill();
-					
-				};
-				
-				
 
 				group = new THREE.Object3D();
 				scene.add( group );
@@ -128,9 +119,9 @@
 				var h = 0;
 				
 				
-					var callback = function() {
+				var callback = function() {
 
-					var material = new THREE.ParticleCanvasMaterial( {  program: program, blending:THREE.AdditiveBlending } );
+					var material = new THREE.ParticleCanvasMaterial( {  program: SPARKS.CanvasShadersUtils.circles , blending:THREE.AdditiveBlending } );
 					
 					material.color.setHSV(h, 1, 0.5); //0.7
 					h += 0.001;
