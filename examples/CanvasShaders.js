@@ -32,6 +32,7 @@
 	}
 
 	var hearts = function ( context ) {
+//					context.globalAlpha = 0.5;
 		var x = 0, y = 0;
 		context.scale(0.1, -0.1);
 		context.beginPath();
