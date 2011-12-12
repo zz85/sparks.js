@@ -66,9 +66,15 @@ SPARKS.Emitter.prototype = {
 		var time = Date.now();
 		var elapsed = time - emitter._lastTime;
 	   	
-		// TOOD, if elapsed is way higher than time step,
-		// decide to drop cycles? perhaps set to a limit of 10 or something?
-
+		// if elapsed is way higher than time step, (usually after switching tabs, or excution cached in ff)
+		// we will drop cycles. perhaps set to a limit of 10 or something?
+		var maxBlock = emitter._TIMESTEP * 50;
+		if (elapsed >= maxBlock) {
+			//console.log('warning: sparks.js is fast fowarding engine, skipping steps', elapsed / emitter._TIMESTEP);
+			//emitter.update( (elapsed - maxBlock) / 1000);
+			elapsed = maxBlock;
+		}
+		
 		while(elapsed >= emitter._TIMESTEP) {
 			emitter.update(emitter._TIMESTEP / 1000);
 			elapsed -= emitter._TIMESTEP;
