@@ -17,7 +17,6 @@ var SPARKS = {};
 *   Creates and Manages Particles
 *********************************/
 
-
 SPARKS.Emitter = function (counter) {
     
     this._counter = counter ? counter : new SPARKS.SteadyCounter(10); // provides number of particles to produce
@@ -165,6 +164,21 @@ SPARKS.Emitter.prototype = {
     addAction: function (action) {
         this._actions.push(action);
     },
+
+    removeInitializer: function (initializer) {
+		var index = this._initializers.indexOf(initializer);
+		if (index > -1) {
+			this._initializers.splice( index, 1 );
+		}
+    },
+
+    removeAction: function (action) {
+		var index = this._actions.indexOf(action);
+		if (index > -1) {
+			this._actions.splice( index, 1 );
+		}
+		//console.log('removeAction', index, this._actions);
+    },
     
     addCallback: function(name, callback) {
         this.callbacks[name] = callback;
@@ -180,6 +194,19 @@ SPARKS.Emitter.prototype = {
     
 
 };
+
+
+/*
+ * Constant Names for
+ * Events called by emitter.dispatchEvent()
+ * 
+ */
+SPARKS.EVENT_PARTICLE_CREATED = "created"
+SPARKS.EVENT_PARTICLE_UPDATED = "updated"
+SPARKS.EVENT_PARTICLE_DEAD = "dead";
+SPARKS.EVENT_LOOP_UPDATED = "loopUpdated";
+
+
 
 /*
  * Steady Counter attempts to produces a particle rate steadily
@@ -606,7 +633,7 @@ SPARKS.Target = function(target, callback) {
     this.callback = callback;
 };
 
-SPARKS.Target.prototype.initialize = function( emitter, particle) {
+SPARKS.Target.prototype.initialize = function( emitter, particle ) {
 
     if (this.callback) {
         particle.target = this.callback();
