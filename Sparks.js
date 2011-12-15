@@ -523,45 +523,90 @@ SPARKS.CubeZone.prototype.getLocation = function() {
 	
 };
 
+
 SPARKS.CubeZone.prototype.contains = function(position) {
 
 	var startX = this.position.x;
 	var startY = this.position.y;
 	var startZ = this.position.z;
-	var w = this.x;
-	var h = this.y;
-	var d = this.z;
+	var x = this.x; // width
+	var y = this.y; // depth
+	var z = this.z; // height
+
 	
-	if (w<0) {
-		startX += w;
-		w *= -1;
+	if (x<0) {
+		startX += x;
+		x = Math.abs(x);
 	}
 	
-	if (h<0) {
-		startY += h;
-		h *= -1;
+	if (y<0) {
+		startY += y;
+		y = Math.abs(y);
 	}
 	
-	if (d<0) {
-		startZ += d;
-		d *= -1;
+	if (z<0) {
+		startZ += z;
+		z *= -1;
 	}
 	
-	var diffX = position.x - startX;
-	var diffY = position.y - startY;
-	var diffZ = position.z - startZ;
+	var endX = x + startX;
+	var endY = y + startY;
+	var endZ = z + startZ;
 	
-	if ( (diffX > 0) && (diffX < w) ) {
-		return true;
-	} else if ( (diffY > 0) && (diffY < h) ) {
-		return true;
-	} else if ( (diffZ > 0) && (diffZ < d) ) {
+	var testX = position.x;
+	var testY = position.y;
+	var testZ = position.z;
+	
+	
+	if ( (startX < testX) && (testX < endX) && 
+			(startY < testY) && (testY < endY) && 
+			(startZ < testZ) && (testZ < endZ) ) {
 		return true;
 	}
 	
 	return false;
 	
 };
+/*
+
+SPARKS.CubeZone.prototype.contains = function(position) {
+
+	var startX = this.position.x;
+	var startY = this.position.y;
+	var startZ = this.position.z;
+	var x = this.x; // width
+	var y = this.y; // depth
+	var z = this.z; // height
+	
+	if (x<0) {
+		startX += x;
+		x = Math.abs(x);
+	}
+	
+	if (y<0) {
+		startY += y;
+		y = Math.abs(y);
+	}
+	
+	if (z<0) {
+		startZ += z;
+		z *= -1;
+	}
+	
+	var diffX = position.x - startX;
+	var diffY = position.y - startY;
+	var diffZ = position.z - startZ;
+	
+	if ( (diffX > 0) && (diffX < x) && 
+			(diffY > 0) && (diffY < y) && 
+			(diffZ > 0) && (diffZ < z) ) {
+		return true;
+	}
+	
+	return false;
+	
+};
+*/
 
 
 /**
