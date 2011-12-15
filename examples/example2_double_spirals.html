@@ -126,7 +126,7 @@
 				
 				var setTargetParticle2 = function() {
 
-					var material = new THREE.ParticleCanvasMaterial( {  program: program, blending:THREE.AdditiveBlending } );
+					var material = new THREE.ParticleCanvasMaterial( {  program: SPARKS.CanvasShadersUtils.circles , blending:THREE.AdditiveBlending } );
 					
 					material.color.setHSV(k, 1, 0.5); //0.7
 					k += 0.001;
