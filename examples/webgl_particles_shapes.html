@@ -127,11 +127,13 @@
 				info.innerHTML = 'Three.js with WebGL Love. Simple Particle Systems with Shapes by <a href="http://www.lab4games.net/zz85/blog">zz85</a><br/>Move your mouse. Click to pause/resume.';
 				container.appendChild( info );
 
-				camera = new THREE.Camera( 50, window.innerWidth / window.innerHeight, 1, 1000 );
-				camera.position.y = 150;
-				camera.position.z = 700;
-				camera.target.position.y = 150;
+				// CAMERA
 
+				camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 2000 );
+				camera.position.set( 0, 150, 700 );
+
+				// SCENE
+				
 				scene = new THREE.Scene();
 
 				// Get text from hash
@@ -155,8 +157,10 @@
 
 				});
 
+
+
 				text3d.computeBoundingBox();
-				var centerOffset = -0.5 * ( text3d.boundingBox.x[ 1 ] - text3d.boundingBox.x[ 0 ] );
+				var centerOffset = -0.5 * ( text3d.boundingBox.max.x - text3d.boundingBox.min.x );
 
                 var textMaterial = new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, wireframe: false } );
                 

@@ -14,7 +14,7 @@ THREE.DotScreenPass = function( center, angle, scale ) {
 	if ( angle !== undefined )	this.uniforms[ "angle"].value = angle;
 	if ( scale !== undefined )	this.uniforms[ "scale"].value = scale;
 
-	this.material = new THREE.MeshShaderMaterial( {
+	this.material = new THREE.ShaderMaterial( {
 
 		uniforms: this.uniforms,
 		vertexShader: shader.vertexShader,
@@ -22,6 +22,7 @@ THREE.DotScreenPass = function( center, angle, scale ) {
 
 	} );
 
+	this.enabled = true;
 	this.renderToScreen = false;
 	this.needsSwap = true;
 
@@ -34,7 +35,7 @@ THREE.DotScreenPass.prototype = {
 		this.uniforms[ "tDiffuse" ].texture = readBuffer;
 		this.uniforms[ "tSize" ].value.set( readBuffer.width, readBuffer.height );
 
-		THREE.EffectComposer.quad.materials[ 0 ] = this.material;
+		THREE.EffectComposer.quad.material = this.material;
 
 		if ( this.renderToScreen ) {
 

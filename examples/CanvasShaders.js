@@ -32,7 +32,7 @@
 	}
 
 	var hearts = function ( context ) {
-//					context.globalAlpha = 0.5;
+		context.globalAlpha = 0.5;
 		var x = 0, y = 0;
 		context.scale(0.1, -0.1);
 		context.beginPath();
@@ -44,7 +44,8 @@
 		context.bezierCurveTo( x + 3.5, y, x + 2.5, y + 2.5, x + 2.5, y + 2.5 );
 		context.closePath();
 		context.fill();
-		context.lineWidth = 0.5; //0.05
+		
+		context.lineWidth = 0.05; //0.05
 		context.stroke();
 	}
 

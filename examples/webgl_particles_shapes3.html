@@ -116,7 +116,7 @@
 				info.style.top = '10px';
 				info.style.width = '100%';
 				info.style.textAlign = 'center';
-				info.innerHTML = 'Three.js with WebGL Love. A Particle Systems Project by <a href="http://www.lab4games.net/zz85/blog">zz85</a><br/>Move your mouse. Click to pause/resume.';
+				info.innerHTML = 'Particles with bezier. A Sparks.js Particle Project by <a href="http://www.lab4games.net/zz85/blog">zz85</a><br/>Move your mouse. Click to pause/resume.';
 				container.appendChild( info );
 
 				// CAMERA
@@ -124,7 +124,6 @@
 				camera = new THREE.Camera( 70, window.innerWidth / window.innerHeight, 1, 2000 );
 				camera.position.y = 150;
 				camera.position.z = 400;
-				camera.target.position.y = 150;
 
 				// SCENE
 
@@ -167,15 +166,17 @@
 					bevelThickness: 2,
 					bevelSize: 2,
 
-					material: textMaterialFront,
-					extrudeMaterial: textMaterialSide
+					material: 0,
+					extrudeMaterial: 1
 
 				});
+
+				text3d.materials = [ textMaterialFront, textMaterialSide ];
 
 				text3d.computeVertexNormals();
 				text3d.computeBoundingBox();
 
-				var centerOffset = -0.5 * ( text3d.boundingBox.x[ 1 ] - text3d.boundingBox.x[ 0 ] );
+				var centerOffset = -0.5 * ( text3d.boundingBox.max.x - text3d.boundingBox.min.x );
 
 				text = new THREE.Mesh( text3d, new THREE.MeshFaceMaterial() );
 
