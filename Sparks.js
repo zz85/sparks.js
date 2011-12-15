@@ -40,6 +40,7 @@ SPARKS.Emitter.prototype = {
 	_timer: null,
 	_lastTime: null,
 	_timerStep: 10,
+	_velocityVerlet: false,
 	
 	// run its built in timer / stepping
 	start: function() {
@@ -65,21 +66,29 @@ SPARKS.Emitter.prototype = {
 		var time = Date.now();
 		var elapsed = time - emitter._lastTime;
 	   	
-		// if elapsed is way higher than time step, (usually after switching tabs, or excution cached in ff)
-		// we will drop cycles. perhaps set to a limit of 10 or something?
-		var maxBlock = emitter._TIMESTEP * 50;
-		if (elapsed >= maxBlock) {
-			//console.log('warning: sparks.js is fast fowarding engine, skipping steps', elapsed / emitter._TIMESTEP);
-			//emitter.update( (elapsed - maxBlock) / 1000);
-			elapsed = maxBlock;
+		if (!this._velocityVerlet) {
+			// if elapsed is way higher than time step, (usually after switching tabs, or excution cached in ff)
+			// we will drop cycles. perhaps set to a limit of 10 or something?
+			var maxBlock = emitter._TIMESTEP * 20;
+			
+			if (elapsed >= maxBlock) {
+				//console.log('warning: sparks.js is fast fowarding engine, skipping steps', elapsed / emitter._TIMESTEP);
+				//emitter.update( (elapsed - maxBlock) / 1000);
+				elapsed = maxBlock;
+			}
+		
+			while(elapsed >= emitter._TIMESTEP) {
+				emitter.update(emitter._TIMESTEP / 1000);
+				elapsed -= emitter._TIMESTEP;
+			}
+			emitter._lastTime = time - elapsed;
+			
+		} else {
+			emitter.update(elapsed/1000);
+			emitter._lastTime = time;
 		}
 		
-		while(elapsed >= emitter._TIMESTEP) {
-			emitter.update(emitter._TIMESTEP / 1000);
-			elapsed -= emitter._TIMESTEP;
-		}
 		
-		emitter._lastTime = time - elapsed;
 		
 		if (emitter._isRunning)
 		setTimeout(emitter.step, emitter._timerStep, emitter);
@@ -290,6 +299,7 @@ SPARKS.Particle = function() {
      
      this.position = SPARKS.VectorPool.get().set(0,0,0); //new THREE.Vector3( 0, 0, 0 );
      this.velocity = SPARKS.VectorPool.get().set(0,0,0); //new THREE.Vector3( 0, 0, 0 );
+	this._oldvelocity = SPARKS.VectorPool.get().set(0,0,0);
      // rotation vec3
      // angVelocity vec3
      // faceAxis vec3
@@ -346,13 +356,26 @@ SPARKS.Move = function() {
 };
 
 SPARKS.Move.prototype.update = function(emitter, particle, time) {
-    
+    // attempt verlet velocity updating.
     var p = particle.position;
-    var v = particle.velocity;
-    
-    p.x += v.x * time;
-    p.y += v.y * time;
-    p.z += v.z * time;
+	var v = particle.velocity;
+    var old = particle._oldvelocity;
+	
+	if (this._velocityVerlet) {	
+		p.x += (v.x + old.x) * 0.5 * time;
+		p.y += (v.y + old.y) * 0.5 * time;
+		p.z += (v.z + old.z) * 0.5 * time;
+	} else {
+		p.x += v.x * time;
+		p.y += v.y * time;
+		p.z += v.z * time;
+	}
+
+    //  OldVel = Vel;
+    // Vel = Vel + Accel * dt;
+    // Pos = Pos + (vel + Vel + Accel * dt) * 0.5 * dt;
+	
+
 
 };
 
@@ -404,6 +427,8 @@ SPARKS.Accelerate.prototype.update = function(emitter, particle, time) {
     
     var v = particle.velocity;
     
+	particle._oldvelocity.set(v.x, v.y, v.z);
+	
     v.x += acc.x * time;
     v.y += acc.y * time;
     v.z += acc.z * time; 
