@@ -45,7 +45,7 @@ Turbulence.prototype.noise = function(x, y, z) {
 };
 
 Turbulence.prototype.update = function(emitter, particle, time) {
-    	var v = particle.velocity;
+    var v = particle.velocity;
 	var pos = particle.position;
 	var turbulenceVel = Turbulence._turbulenceVel;
 

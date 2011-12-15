@@ -336,6 +336,21 @@ SPARKS.Move.prototype.update = function(emitter, particle, time) {
 
 };
 
+
+
+SPARKS.DeathZone = function(zone) {
+    this.zone = zone;
+};
+
+SPARKS.DeathZone.prototype.update = function(emitter, particle, time) {
+    
+    if (this.zone.contains(particle.position)) {
+		particle.isDead = true;
+	}
+
+};
+
+
 /*
  * Accelerate action affects velocity in specified 3d direction 
  */
@@ -474,8 +489,6 @@ SPARKS.LineZone.prototype.getLocation = function() {
 };
 
 // Basically a RectangleZone
-
-
 SPARKS.ParallelogramZone = function(corner, side1, side2) {
     this.corner = corner;
 	this.side1 = side1;
@@ -507,6 +520,46 @@ SPARKS.CubeZone.prototype.getLocation = function() {
 	location.z += Math.random() * this.z;
 	
 	return location;
+	
+};
+
+SPARKS.CubeZone.prototype.contains = function(position) {
+
+	var startX = this.position.x;
+	var startY = this.position.y;
+	var startZ = this.position.z;
+	var w = this.x;
+	var h = this.y;
+	var d = this.z;
+	
+	if (w<0) {
+		startX += w;
+		w *= -1;
+	}
+	
+	if (h<0) {
+		startY += h;
+		h *= -1;
+	}
+	
+	if (d<0) {
+		startZ += d;
+		d *= -1;
+	}
+	
+	var diffX = position.x - startX;
+	var diffY = position.y - startY;
+	var diffZ = position.z - startZ;
+	
+	if ( (diffX > 0) && (diffX < w) ) {
+		return true;
+	} else if ( (diffY > 0) && (diffY < h) ) {
+		return true;
+	} else if ( (diffZ > 0) && (diffZ < d) ) {
+		return true;
+	}
+	
+	return false;
 	
 };
 
