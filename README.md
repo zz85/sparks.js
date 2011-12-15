@@ -20,3 +20,4 @@ http://jabtunes.com/labs/arabesque/
 [Brillance Particles + Custom Shapes](http://jsdo.it/zz85/x8Gf)
 
 ####Articles####
+http://learningthreejs.com/blog/2011/12/14/particles-introduction-to-sparks-js/
