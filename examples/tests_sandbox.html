@@ -238,13 +238,12 @@
 				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
 
-				displayExample(deathZone);
+				displayExample(actionZone);
 				run();
 
 			}
 
-
-			function deathZone() {
+			function actionZone() {
 				var onParticleCreated = function(p) {
 					// create a three.js particle
 
@@ -274,6 +273,54 @@
 
 				
 				sparksEmitter.addInitializer(new SPARKS.Lifetime(3,3));
+				sparksEmitter.addInitializer(new SPARKS.Position(new SPARKS.CubeZone( new THREE.Vector3(0,0,0), 100, 100, 100 ) ) );
+				sparksEmitter.addInitializer(new SPARKS.Velocity(new SPARKS.PointZone(new THREE.Vector3(-10,0,0))));
+				sparksEmitter.addAction(new SPARKS.Accelerate(0, 0, 2));
+				
+				sparksEmitter.addAction(new SPARKS.Age());
+				sparksEmitter.addAction(new SPARKS.Move()); 
+				
+				sparksEmitter.addAction(new SPARKS.ActionZone( 
+					//new SPARKS.RandomDrift(1000,1000,1000),
+					new SPARKS.Accelerate(0, 0, 1000),
+					new SPARKS.CubeZone( new THREE.Vector3(20,20,0), 30, 30, 100 ) ) );
+
+				sparksEmitter.addCallback("created", onParticleCreated);
+				sparksEmitter.addCallback("dead", onParticleDead);
+
+				sparksEmitter.start();
+			}
+
+			function deathZone() {
+				var onParticleCreated = function(p) {
+					// create a three.js particle
+
+					var material = new THREE.ParticleCanvasMaterial( {  program: SPARKS.CanvasShadersUtils.circles, blending:THREE.AdditiveBlending } );
+					material.color.setHSV(Math.random() * 0.5 + 0.2, 1, 0.2); 
+
+					particle = new THREE.Particle( material );
+					particle.scale.x = particle.scale.y = 4;
+					group.add( particle );	
+
+
+					// assign three.js particle to sparks.js position
+					particle.position = p.position;
+
+					// assign sparks.js target particle to three.js particle
+					p.target = particle;
+
+				};
+
+				var onParticleDead = function(particle) {
+					particle.target.visible = false; // is this a work around?
+					group.remove(particle.target); 
+				};
+
+
+				sparksEmitter = new SPARKS.Emitter(new SPARKS.SteadyCounter(300));
+
+				
+				sparksEmitter.addInitializer(new SPARKS.Lifetime(3,3));
 				sparksEmitter.addInitializer(new SPARKS.Position( new SPARKS.CubeZone( new THREE.Vector3(0,0,0), 100, 100, 100 ) ) );
 				sparksEmitter.addInitializer(new SPARKS.Velocity(new SPARKS.PointZone(new THREE.Vector3(0,0,0))));
 				
@@ -281,7 +328,7 @@
 				sparksEmitter.addAction(new SPARKS.Move()); 
 				
 				sparksEmitter.addAction(new SPARKS.DeathZone( 
-					new SPARKS.CubeZone( new THREE.Vector3(0,0,0), 50, 50, 100 ) ) );
+					new SPARKS.CubeZone( new THREE.Vector3(20,20,0), 50, 50, 100 ) ) );
 
 				sparksEmitter.addCallback("created", onParticleCreated);
 				sparksEmitter.addCallback("dead", onParticleDead);
@@ -296,12 +343,11 @@
 				lines.shift();
 				lines.forEach(function(a,b) {
 					lines[b] = a.replace(/\t\t/, '');
-					console.log(a);
-					
 				});
+				
 				codeElement.innerHTML = lines.join('\n');
 				
-				console.log(lines.join('\n'));
+				//console.log(lines.join('\n'));
 			}
 			
 		
@@ -310,8 +356,8 @@
 				if (sparksEmitter) {
 					sparksEmitter.stop();
 					scene.remove(group);
-					
-					// TODO release used vectors?
+					sparksEmitter.update(2);
+					//  release used vectors
 				}
 				
 				group = new THREE.Object3D();

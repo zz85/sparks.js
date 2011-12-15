@@ -336,8 +336,7 @@ SPARKS.Move.prototype.update = function(emitter, particle, time) {
 
 };
 
-
-
+/* Marks particles found in specified zone dead */
 SPARKS.DeathZone = function(zone) {
     this.zone = zone;
 };
@@ -350,6 +349,21 @@ SPARKS.DeathZone.prototype.update = function(emitter, particle, time) {
 
 };
 
+/*
+ * SPARKS.ActionZone applies an action when particle is found in zone
+ */
+SPARKS.ActionZone = function(action, zone) {
+	this.action = action;
+    this.zone = zone;
+};
+
+SPARKS.ActionZone.prototype.update = function(emitter, particle, time) {
+
+    if (this.zone.contains(particle.position)) {
+		this.action.update( emitter, particle, time );
+	}
+
+};
 
 /*
  * Accelerate action affects velocity in specified 3d direction 
@@ -532,7 +546,6 @@ SPARKS.CubeZone.prototype.contains = function(position) {
 	var x = this.x; // width
 	var y = this.y; // depth
 	var z = this.z; // height
-
 	
 	if (x<0) {
 		startX += x;
@@ -546,51 +559,7 @@ SPARKS.CubeZone.prototype.contains = function(position) {
 	
 	if (z<0) {
 		startZ += z;
-		z *= -1;
-	}
-	
-	var endX = x + startX;
-	var endY = y + startY;
-	var endZ = z + startZ;
-	
-	var testX = position.x;
-	var testY = position.y;
-	var testZ = position.z;
-	
-	
-	if ( (startX < testX) && (testX < endX) && 
-			(startY < testY) && (testY < endY) && 
-			(startZ < testZ) && (testZ < endZ) ) {
-		return true;
-	}
-	
-	return false;
-	
-};
-/*
-
-SPARKS.CubeZone.prototype.contains = function(position) {
-
-	var startX = this.position.x;
-	var startY = this.position.y;
-	var startZ = this.position.z;
-	var x = this.x; // width
-	var y = this.y; // depth
-	var z = this.z; // height
-	
-	if (x<0) {
-		startX += x;
-		x = Math.abs(x);
-	}
-	
-	if (y<0) {
-		startY += y;
-		y = Math.abs(y);
-	}
-	
-	if (z<0) {
-		startZ += z;
-		z *= -1;
+		z = Math.abs(z);
 	}
 	
 	var diffX = position.x - startX;
@@ -606,7 +575,7 @@ SPARKS.CubeZone.prototype.contains = function(position) {
 	return false;
 	
 };
-*/
+
 
 
 /**
