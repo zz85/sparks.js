@@ -110,7 +110,7 @@ SPARKS.Emitter.prototype = {
         len = this._activities.length;
         for ( i = 0; i < len; i++ )
         {
-            this_.activities[i].update( this, time );
+            this._activities[i].update( this, time );
         }
         
         
