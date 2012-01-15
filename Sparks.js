@@ -454,9 +454,7 @@ SPARKS.AccelerateFactor.prototype.update = function(emitter, particle, time) {
 		adjFactor += 1;
 		
 		v.multiplyScalar(adjFactor);
-		// v.x *= adjFactor;
-		// 	    v.y *= adjFactor;
-		// 	    v.z *= adjFactor; 
+
 	}
 
 };
