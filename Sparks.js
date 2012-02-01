@@ -272,6 +272,10 @@ SPARKS.Emitter.prototype = {
         this.callbacks[name] = callback;
     },
     
+    removeCallback: function(name) {
+        delete this.callbacks[name];
+    },
+    
     dispatchEvent: function(name, args) {
         var callback = this.callbacks[name];
         if (callback) {
