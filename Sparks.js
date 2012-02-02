@@ -26,6 +26,7 @@ SPARKS.Engine = {
 	_timerStep: 10,
 	_velocityVerlet: false,
 	_emitters: [],
+	_isRunning: false,
 	
 	add: function(emitter) {
 		this._emitters.push(emitter);
@@ -51,7 +52,7 @@ SPARKS.Engine = {
 	},
 	
 	isRunning: function() {
-		return this._isRunning & true;
+		return this._isRunning;
 	},
 	
 	// Step gets called upon by the engine
@@ -120,6 +121,7 @@ SPARKS.Emitter.prototype = {
 	_lastTime: null,
 	_timerStep: 10,
 	_velocityVerlet: false,
+	_isRunning: false,
 	
 	// run its built in timer / stepping
 	start: function() {
@@ -134,7 +136,7 @@ SPARKS.Emitter.prototype = {
 	},
 	
 	isRunning: function() {
-		return this._isRunning & true;
+		return this._isRunning;
 	},
 	
 	// Step gets called upon by the engine
