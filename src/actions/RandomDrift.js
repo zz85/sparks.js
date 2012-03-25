@@ -6,8 +6,9 @@ SPARKS.RandomDrift = function(x,y,z) {
 	}
 
     this.drift = new THREE.Vector3(x,y,z);
-}
+};
 
+SPARKS.Extends(SPARKS.RandomDrift, SPARKS.Action);
 
 SPARKS.RandomDrift.prototype.update = function(emitter, particle, time) {
     var drift = this.drift;

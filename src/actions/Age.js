@@ -2,6 +2,9 @@ SPARKS.Age = function(easing) {
     this._easing = (easing == null) ? TWEEN.Easing.Linear.EaseNone : easing;
 };
 
+
+SPARKS.Extends(SPARKS.Age, SPARKS.Action);
+
 SPARKS.Age.prototype.update = function (emitter, particle, time) {
     particle.age += time;
     if( particle.age >= particle.lifetime )

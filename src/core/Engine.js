@@ -1,7 +1,11 @@
 // Manages and runs multiple emitters
 
-SPARKS.Engine = {
-	// Combined Singleton Engine;
+SPARKS.Engine = function() {
+
+};
+
+SPARKS.Engine.prototype = {
+	// Combined Emitter Engine;
 	_TIMESTEP: 15,
 	_timer: null,
 	_lastTime: null,
@@ -13,6 +17,14 @@ SPARKS.Engine = {
 	add: function(emitter) {
 		this._emitters.push(emitter);
 	},
+
+	remove: function(emitter) {
+		var index = this._emitters.indexOf(emitter);
+		if (index > -1) {
+			this._emitters.splice( index, 1 );
+		}
+	},
+
 	// run its built in timer / stepping
 	start: function() {
 		this._lastTime = Date.now();

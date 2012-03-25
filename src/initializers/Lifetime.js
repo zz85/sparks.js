@@ -13,6 +13,8 @@ SPARKS.Lifetime = function(min, max) {
     
 };
 
+SPARKS.Extends( SPARKS.Lifetime, SPARKS.Initializer);
+
 SPARKS.Lifetime.prototype.initialize = function( emitter/*Emitter*/, particle/*Particle*/ ) {
     particle.lifetime = this._min + SPARKS.Utils.random() * ( this._max - this._min );
 };

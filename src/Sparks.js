@@ -19,3 +19,10 @@ SPARKS.EVENT_PARTICLE_CREATED = "created"
 SPARKS.EVENT_PARTICLE_UPDATED = "updated"
 SPARKS.EVENT_PARTICLE_DEAD = "dead";
 SPARKS.EVENT_LOOP_UPDATED = "loopUpdated";
+
+SPARKS.Extends = function(child, parent) {
+
+	child.prototype = new parent();
+	child.prototype.constructor = child;
+
+};

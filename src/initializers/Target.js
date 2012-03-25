@@ -3,6 +3,8 @@ SPARKS.Target = function(target, callback) {
     this.callback = callback;
 };
 
+SPARKS.Extends( SPARKS.Target, SPARKS.Initializer);
+
 SPARKS.Target.prototype.initialize = function( emitter, particle ) {
 
     if (this.callback) {

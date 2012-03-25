@@ -12,6 +12,8 @@ SPARKS.Accelerate = function(x,y,z) {
     
 };
 
+SPARKS.Extends(SPARKS.Accelerate, SPARKS.Action);
+
 SPARKS.Accelerate.prototype.update = function(emitter, particle, time) {
     var acc = this.acceleration;
     

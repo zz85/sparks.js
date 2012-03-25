@@ -2,6 +2,8 @@ SPARKS.Move = function() {
     
 };
 
+SPARKS.Extends(SPARKS.Move, SPARKS.Action);
+
 SPARKS.Move.prototype.update = function(emitter, particle, time) {
     // attempt verlet velocity updating.
     var p = particle.position;

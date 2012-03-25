@@ -6,6 +6,8 @@ SPARKS.ActionZone = function(action, zone) {
     this.zone = zone;
 };
 
+SPARKS.Extends(SPARKS.ActionZone, SPARKS.Action);
+
 SPARKS.ActionZone.prototype.update = function(emitter, particle, time) {
 
     if (this.zone.contains(particle.position)) {

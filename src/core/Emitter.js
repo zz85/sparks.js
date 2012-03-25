@@ -155,26 +155,56 @@ SPARKS.Emitter.prototype = {
     },
     
     addInitializer: function (initializer) {
+        
+        if (! (initializer instanceof SPARKS.Initializer) ) {
+            console.log('addInitializer(): not a SPARKS.Initializer', initializer);
+        }
         this._initializers.push(initializer);
     },
     
     addAction: function (action) {
+
+        if (! (action instanceof SPARKS.Action) ) {
+            console.log('addAction(): not an SPARKS.Action', action);
+        }
         this._actions.push(action);
+    },
+
+    addActivity: function (activity) {
+
+        if (! (activity instanceof SPARKS.Activity) ) {
+            console.log('addActivity(): not an SPARKS.Activity', activity);
+        }
+ 
+        this._activities.push(activity);
     },
 
     removeInitializer: function (initializer) {
 		var index = this._initializers.indexOf(initializer);
 		if (index > -1) {
 			this._initializers.splice( index, 1 );
-		}
+		} else {
+            console.log('removeInitializer(): initializer not found', initializer);
+        }
     },
 
     removeAction: function (action) {
 		var index = this._actions.indexOf(action);
 		if (index > -1) {
 			this._actions.splice( index, 1 );
-		}
+		} else {
+            console.log('removeAction(): action not found', action);
+        }
 		//console.log('removeAction', index, this._actions);
+    },
+
+    removeActivity: function (activity) {
+        var index = this._activities.indexOf(activity);
+        if (index > -1) {
+            this._activities.splice( index, 1 );
+        } else {
+            console.log('removeActivity(): activity not found', activity);
+        }
     },
     
     addCallback: function(name, callback) {
