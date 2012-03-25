@@ -7,7 +7,9 @@
  * @author zz85 (http://github.com/zz85 http://www.lab4games.net/zz85/blog)
  */var SPARKS = {};
 
-SPARKS.EVENT_PARTICLE_CREATED = "created", SPARKS.EVENT_PARTICLE_UPDATED = "updated", SPARKS.EVENT_PARTICLE_DEAD = "dead", SPARKS.EVENT_LOOP_UPDATED = "loopUpdated", SPARKS.Emitter = function(a) {
+SPARKS.EVENT_PARTICLE_CREATED = "created", SPARKS.EVENT_PARTICLE_UPDATED = "updated", SPARKS.EVENT_PARTICLE_DEAD = "dead", SPARKS.EVENT_LOOP_UPDATED = "loopUpdated", SPARKS.Extends = function(a, b) {
+    a.prototype = new b, a.prototype.constructor = a;
+}, SPARKS.Emitter = function(a) {
     this._counter = a ? a : new SPARKS.SteadyCounter(10), this._particles = [], this._initializers = [], this._actions = [], this._activities = [], this._handlers = [], this.callbacks = {};
 }, SPARKS.Emitter.prototype = {
     _TIMESTEP: 15,
@@ -55,18 +57,25 @@ SPARKS.EVENT_PARTICLE_CREATED = "created", SPARKS.EVENT_PARTICLE_UPDATED = "upda
         return this._particles.push(a), this.dispatchEvent("created", a), a;
     },
     addInitializer: function(a) {
-        this._initializers.push(a);
+        a instanceof SPARKS.Initializer || console.log("addInitializer(): not a SPARKS.Initializer", a), this._initializers.push(a);
     },
     addAction: function(a) {
-        this._actions.push(a);
+        a instanceof SPARKS.Action || console.log("addAction(): not an SPARKS.Action", a), this._actions.push(a);
+    },
+    addActivity: function(a) {
+        a instanceof SPARKS.Activity || console.log("addActivity(): not an SPARKS.Activity", a), this._activities.push(a);
     },
     removeInitializer: function(a) {
         var b = this._initializers.indexOf(a);
-        b > -1 && this._initializers.splice(b, 1);
+        b > -1 ? this._initializers.splice(b, 1) : console.log("removeInitializer(): initializer not found", a);
     },
     removeAction: function(a) {
         var b = this._actions.indexOf(a);
-        b > -1 && this._actions.splice(b, 1);
+        b > -1 ? this._actions.splice(b, 1) : console.log("removeAction(): action not found", a);
+    },
+    removeActivity: function(a) {
+        var b = this._activities.indexOf(a);
+        b > -1 ? this._activities.splice(b, 1) : console.log("removeActivity(): activity not found", a);
     },
     addCallback: function(a, b) {
         this.callbacks[a] = b;
@@ -78,7 +87,7 @@ SPARKS.EVENT_PARTICLE_CREATED = "created", SPARKS.EVENT_PARTICLE_UPDATED = "upda
         var c = this.callbacks[a];
         c && c(b);
     }
-}, SPARKS.Engine = {
+}, SPARKS.Engine = function() {}, SPARKS.Engine.prototype = {
     _TIMESTEP: 15,
     _timer: null,
     _lastTime: null,
@@ -88,6 +97,10 @@ SPARKS.EVENT_PARTICLE_CREATED = "created", SPARKS.EVENT_PARTICLE_UPDATED = "upda
     _isRunning: !1,
     add: function(a) {
         this._emitters.push(a);
+    },
+    remove: function(a) {
+        var b = this._emitters.indexOf(a);
+        b > -1 && this._emitters.splice(b, 1);
     },
     start: function() {
         this._lastTime = Date.now(), this._timer = setTimeout(this.step, this._timerStep, this);
@@ -117,24 +130,26 @@ SPARKS.EVENT_PARTICLE_CREATED = "created", SPARKS.EVENT_PARTICLE_UPDATED = "upda
     }
 }, SPARKS.Particle = function() {
     this.lifetime = 0, this.age = 0, this.energy = 1, this.isDead = !1, this.target = null, this.position = SPARKS.VectorPool.get().set(0, 0, 0), this.velocity = SPARKS.VectorPool.get().set(0, 0, 0), this._oldvelocity = SPARKS.VectorPool.get().set(0, 0, 0);
+}, SPARKS.Action = function() {
+    this._priority = 0;
+}, SPARKS.Action.prototype.update = function(a, b, c) {
+    console.log("SPARKS.Action: update() not implemented.");
 }, SPARKS.Accelerate = function(a, b, c) {
     if (a instanceof THREE.Vector3) {
         this.acceleration = a;
         return;
     }
     this.acceleration = new THREE.Vector3(a, b, c);
-}, SPARKS.Accelerate.prototype.update = function(a, b, c) {
+}, SPARKS.Extends(SPARKS.Accelerate, SPARKS.Action), SPARKS.Accelerate.prototype.update = function(a, b, c) {
     var d = this.acceleration, e = b.velocity;
     b._oldvelocity.set(e.x, e.y, e.z), e.x += d.x * c, e.y += d.y * c, e.z += d.z * c;
-}, SPARKS.Action = function() {
-    this._priority = 0;
 }, SPARKS.ActionZone = function(a, b) {
     this.action = a, this.zone = b;
-}, SPARKS.ActionZone.prototype.update = function(a, b, c) {
+}, SPARKS.Extends(SPARKS.ActionZone, SPARKS.Action), SPARKS.ActionZone.prototype.update = function(a, b, c) {
     this.zone.contains(b.position) && this.action.update(a, b, c);
 }, SPARKS.Age = function(a) {
     this._easing = a == null ? TWEEN.Easing.Linear.EaseNone : a;
-}, SPARKS.Age.prototype.update = function(a, b, c) {
+}, SPARKS.Extends(SPARKS.Age, SPARKS.Action), SPARKS.Age.prototype.update = function(a, b, c) {
     b.age += c;
     if (b.age >= b.lifetime) b.energy = 0, b.isDead = !0; else {
         var d = this._easing(b.age / b.lifetime);
@@ -142,9 +157,9 @@ SPARKS.EVENT_PARTICLE_CREATED = "created", SPARKS.EVENT_PARTICLE_UPDATED = "upda
     }
 }, SPARKS.DeathZone = function(a) {
     this.zone = a;
-}, SPARKS.DeathZone.prototype.update = function(a, b, c) {
+}, SPARKS.Extends(SPARKS.DeathZone, SPARKS.Action), SPARKS.DeathZone.prototype.update = function(a, b, c) {
     this.zone.contains(b.position) && (b.isDead = !0);
-}, SPARKS.Move = function() {}, SPARKS.Move.prototype.update = function(a, b, c) {
+}, SPARKS.Move = function() {}, SPARKS.Extends(SPARKS.Move, SPARKS.Action), SPARKS.Move.prototype.update = function(a, b, c) {
     var d = b.position, e = b.velocity, f = b._oldvelocity;
     this._velocityVerlet ? (d.x += (e.x + f.x) * .5 * c, d.y += (e.y + f.y) * .5 * c, d.z += (e.z + f.z) * .5 * c) : (d.x += e.x * c, d.y += e.y * c, d.z += e.z * c);
 }, SPARKS.RandomDrift = function(a, b, c) {
@@ -153,9 +168,15 @@ SPARKS.EVENT_PARTICLE_CREATED = "created", SPARKS.EVENT_PARTICLE_UPDATED = "upda
         return;
     }
     this.drift = new THREE.Vector3(a, b, c);
-}, SPARKS.RandomDrift.prototype.update = function(a, b, c) {
+}, SPARKS.Extends(SPARKS.RandomDrift, SPARKS.Action), SPARKS.RandomDrift.prototype.update = function(a, b, c) {
     var d = this.drift, e = b.velocity;
     e.x += (Math.random() - .5) * d.x * c, e.y += (Math.random() - .5) * d.y * c, e.z += (Math.random() - .5) * d.z * c;
+}, SPARKS.Activity = function() {}, SPARKS.Activity.prototype.update = function(a, b, c) {
+    console.log("SPARKS.Activity: update() not implemented.");
+}, SPARKS.EndActivity = function(a) {
+    this.callback = a;
+}, SPARKS.Extends(SPARKS.EndActivity, SPARKS.Activity), SPARKS.EndActivity.prototype.update = function(a, b) {
+    a._particles.length == 0 && (this.callback(), a.removeActivity(this));
 }, SPARKS.ShotCounter = function(a) {
     this.particles = a, this.used = !1;
 }, SPARKS.ShotCounter.prototype.updateEmitter = function(a, b) {
@@ -165,22 +186,24 @@ SPARKS.EVENT_PARTICLE_CREATED = "created", SPARKS.EVENT_PARTICLE_UPDATED = "upda
 }, SPARKS.SteadyCounter.prototype.updateEmitter = function(a, b) {
     var c = b * this.rate + this.leftover, d = Math.floor(c);
     return this.leftover = c - d, d;
+}, SPARKS.Initializer = function() {}, SPARKS.Initializer.prototype.initialize = function(a, b) {
+    console.log("SPARKS.Initializer: initialize() not implemented.");
 }, SPARKS.Lifetime = function(a, b) {
     this._min = a, this._max = b ? b : a;
-}, SPARKS.Lifetime.prototype.initialize = function(a, b) {
+}, SPARKS.Extends(SPARKS.Lifetime, SPARKS.Initializer), SPARKS.Lifetime.prototype.initialize = function(a, b) {
     b.lifetime = this._min + SPARKS.Utils.random() * (this._max - this._min);
 }, SPARKS.Position = function(a) {
     this.zone = a;
-}, SPARKS.Position.prototype.initialize = function(a, b) {
+}, SPARKS.Extends(SPARKS.Position, SPARKS.Initializer), SPARKS.Position.prototype.initialize = function(a, b) {
     var c = this.zone.getLocation();
     b.position.set(c.x, c.y, c.z);
 }, SPARKS.Target = function(a, b) {
     this.target = a, this.callback = b;
-}, SPARKS.Target.prototype.initialize = function(a, b) {
+}, SPARKS.Extends(SPARKS.Target, SPARKS.Initializer), SPARKS.Target.prototype.initialize = function(a, b) {
     this.callback ? b.target = this.callback() : b.target = this.target;
 }, SPARKS.Velocity = function(a) {
     this.zone = a;
-}, SPARKS.Velocity.prototype.initialize = function(a, b) {
+}, SPARKS.Extends(SPARKS.Velocity, SPARKS.Initializer), SPARKS.Velocity.prototype.initialize = function(a, b) {
     var c = this.zone.getLocation();
     b.velocity.set(c.x, c.y, c.z), c.__markedForReleased && (SPARKS.VectorPool.release(c), c.__markedForReleased = !1);
 }, SPARKS.AccelerateFactor = function(a) {
