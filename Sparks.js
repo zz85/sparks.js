@@ -45,8 +45,8 @@ SPARKS.Engine = {
 	
 	stop: function() {
 		this._isRunning = false;
-		for (var i=0,il=_emitters.length;i<il;i++) {
-			_emitters[i]._isRunning = false;
+		for (var i=0,il=this._emitters.length;i<il;i++) {
+			this._emitters[i]._isRunning = false;
 		}
 		clearTimeout(this._timer);
 	},
