@@ -270,8 +270,9 @@ SPARKS.Emitter.prototype = {
 		//console.log('removeAction', index, this._actions);
     },
     
-    addCallback: function(name, callback) {
-        this.callbacks[name] = callback;
+    addCallback: function(name, callback, scope) {
+        //this.callbacks[name] = callback;
+        this.callbacks[name] = {fn:callback, scope:scope};
     },
     
     removeCallback: function(name) {
@@ -280,8 +281,12 @@ SPARKS.Emitter.prototype = {
     
     dispatchEvent: function(name, args) {
         var callback = this.callbacks[name];
-        if (callback) {
-            callback(args);
+        if (callback && callback.fn) {
+            if(callback.scope){
+            	callback.fn.call(callback.scope, args);
+            }else{
+            	callback.fn(args);
+            }
         }
     
     }
@@ -823,15 +828,16 @@ SPARKS.Velocity.prototype.initialize = function( emitter/*Emitter*/, particle/*P
 	}
 };
 
-SPARKS.Target = function(target, callback) {
+SPARKS.Target = function(target, callback, scope) {
     this.target = target;
-    this.callback = callback;
+    this.callback = {fn:callback, scope:scope};
 };
 
 SPARKS.Target.prototype.initialize = function( emitter, particle ) {
 
-    if (this.callback) {
-        particle.target = this.callback();
+    if (this.callback && this.callback.fn) {
+    	var scope = this.callback.scope;
+        particle.target = scope ? this.callback.fn.call(scope) : this.callback.fn();
     } else {
         particle.target = this.target;
     }
